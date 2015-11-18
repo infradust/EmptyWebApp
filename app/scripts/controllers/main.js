@@ -30,8 +30,15 @@ angular.module('testYoApp')
     	$scope.selected = undefined;
     };
     
+    $scope.showRadaii = false;
+    
     $scope.toggleRadii = function () {
 	  	$scope.showRadii = !$scope.showRadii;  
-    }
+    };
+    
+    $scope.showBrake = false;
+    $scope.toggleBrake = function () {
+		$scope.showBrake = !$scope.showBrake;	    
+    };
     
   }]);
