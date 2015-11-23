@@ -21,8 +21,8 @@ angular.module('testYoApp')
 				var data = dlg.sweetspotData || {_order:[]};
 				
 				var colorScale = d3.scale.linear()
-					.domain([1,0.5, 0])
-					.range(["green", "orange","red"]);
+					.domain([1,0.66,0.33, 0])
+					.range(["green","yellow", "orange","red"]);
 				
 				var vecs = data._order;
 				var lData = [];
@@ -44,7 +44,7 @@ angular.module('testYoApp')
 				//console.log('RB',oArcS('Speed'),oArcF('Speed'));
 				var oRad = d3.scale.linear()
 					.domain([1,0])
-					.range([16,r-32]);
+					.range([32,r-32]);
 				var arc = d3.svg.arc()
 					.innerRadius(function(d){return 8;})
 					.outerRadius(function(d){return oRad(d.d.g)})
@@ -59,7 +59,7 @@ angular.module('testYoApp')
 					es = es.append('svg:g').attr('class','vec');
 					es.append('path')
 						.attr('class','vec_path')
-						.attr('fill-opacity',0.3).attr('id',function(d){return ''+d.k});
+						.attr('fill-opacity',0.6).attr('id',function(d){return ''+d.k});
 					es.append('text').append('textPath').attr('xlink:href',function(d){return '#'+d.k;}).attr("startOffset",function(d,i){return "20%";}).text(function(d){return d.k;});
 					vs.selectAll('.vec_path').attr('d',arc).attr('fill',function(d){return colorScale(d.d.g);});
 				}
