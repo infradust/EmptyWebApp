@@ -12,9 +12,9 @@
 		<div class="col-md-7">
 			<ds-d3-demo dlg="visDlg"></ds-d3-demo>
 		</div>
-		<div class="col-md-3" style="border:solid 1px black;">
+		<div class="col-md-3" style="border:solid 1px black;" ng-if="selected !== undefined">
 			<h3>Details</h3>
-			<form class="form-horizontal" accept-charset="UTF-8" ng-if="selected !== undefined">
+			<form class="form-horizontal" accept-charset="UTF-8">
 				<div class="form-group">
 					<label class="col-sm-4 control-label col-sm-pad">Name:</label>
 					<div class="col-sm-8 col-sm-pad">
@@ -58,6 +58,16 @@
 					</div>
 				</div>
 			</form>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12">
+						<h3>Optimizer</h3>
+					</div>
+				</div>
+				<div class="row">
+					<item-d3-sweetspot dlg="spotDlg"></item-d3-sweetspot>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

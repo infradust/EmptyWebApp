@@ -152,7 +152,7 @@ angular.module('testYoApp')
 				.enter().append('svg:g')
 					.classed('event',true)
 					.attr('transform',function(d){return 'translate('+x_group(d.k)+',0)';});
-				
+			
 			event.selectAll('rect').data(function(d){return d.stack;})
 				.enter().append('rect')
 					.attr('x',function(d){return x_comp(d.d);})
@@ -160,7 +160,7 @@ angular.module('testYoApp')
 					.attr('y',function(d){return y(d.y1);})
 					.attr('height',function(d){return y(d.y0)-y(d.y1);})
 					.attr('fill',function(d){return color[d.k][0];});
-			event.append('text').attr('x',function(d){return x_comp(d.d);}).attr('y',20).text(function(d){return ''+d.d;});
+			event.append('text').attr('x',function(d){return x_comp(d.d);}).attr('y',function(d){return y(d.stack[d.stack.length-1].y1)-5;}).text(function(d){return ''+d.d;});
 			
 			 var legend = content.selectAll(".legend")
 			 .data(Object.keys(color))
