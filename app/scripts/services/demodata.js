@@ -236,8 +236,8 @@ angular.module('testYoApp')
 			front_width:[2,'m'],
 			rear_width:[4,'m'],
 			tower_radius:[2,'m'],
-			max_slew_speed:[0.6,'rpm'],
-			break_speed:[0.35,'rpm'],
+			max_slew_speed:[0.7,'rpm'],
+			break_speed:[0.1,'rpm'],
 		},
 		crane_02 : {
 			'_':kinds['c'],
@@ -253,7 +253,7 @@ angular.module('testYoApp')
 			rear_width:[4,'m'],
 			tower_radius:[2,'m'],
 			max_slew_speed:[0.7,'rpm'],
-			break_speed:[0.3,'rpm'],
+			break_speed:[0.1,'rpm'],
 		},
 		crane_03 : {
 			'_':kinds['c'],
@@ -269,7 +269,7 @@ angular.module('testYoApp')
 			rear_width:[4,'m'],
 			tower_radius:[2,'m'],
 			max_slew_speed:[0.7,'rpm'],
-			break_speed:[0.2,'rpm'],
+			break_speed:[0.1,'rpm'],
 		},
 		crane_04 : {
 			'_':kinds['c'],
@@ -300,8 +300,8 @@ angular.module('testYoApp')
 			front_width:[2,'m'],
 			rear_width:[4,'m'],
 			tower_radius:[2,'m'],
-			max_slew_speed:[0.8,'rpm'],
-			break_speed:[0.4,'rpm'],
+			max_slew_speed:[0.7,'rpm'],
+			break_speed:[0.1,'rpm'],
 		},
 	 };
 	 

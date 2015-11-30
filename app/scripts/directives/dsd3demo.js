@@ -93,7 +93,7 @@ function timeToArc(curr,alpha,beta,v) {
 		start:[talpha,alpha],
 		finish:[tbeta,beta],
 		t:tbeta-talpha,
-	};
+	}
 }
 
 function segmentIntersection(s0,f0,s1,f1) {
@@ -273,48 +273,6 @@ angular.module('testYoApp')
 			 s.remove();
 		 }
 		 
-		 
-		 function appendCraneBrake(_selection) {
-			 var gs = _selection.append('svg:g')
-			 	.classed('crane_brake',true);
-			 gs.append('path').classed('unstopable',true).attr('fill','red').attr('fill-opacity',0.2);
-			 gs.append('path').classed('warning',true).attr('fill','yellow').attr('fill-opacity',0.2);
-/*
-			 
-			 var bArc = d3.svg.arc()
-			 	.innerRadius(0)
-			 	.outerRadius(function(d){return d.front_radius[0];})
-			 	.startAngle(Math.PI/2)
-			 	.endAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]+Math.PI/2;
-			 	});
-			 	
-			 gs.append('path').attr('d',bArc).attr('fill','red').attr('fill-opacity',0.2);
-			 bArc
-			 	.startAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]+Math.PI/2;
-				})
-				.endAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]*(1.15)+Math.PI/2;
-				});
-			 gs.append('path').attr('d',bArc).attr('fill','yellow').attr('fill-opacity',0.2);
-*/
-			 
-		 }
-		 
-		 function removeCraneBrake(_selection) {
-			 _selection.selectAll('.crane_brake').remove();
-		 }
-		 
 		 function updateCraneIcon(_selection) {
 			 _selection.attr('transform',function(d){
 											var m = measurments[d['__']];
@@ -335,35 +293,6 @@ angular.module('testYoApp')
 				.attr('y2',function(d){return measurments[d[1]['__']].base_location.latest.y[0]-d[0][0].y[0];})
 				.attr('stroke-width',2)
 				.attr('stroke','black');
-			
-			var brake = _selection.selectAll('.crane_brake');
-			var bArc = d3.svg.arc()
-			 	.innerRadius(function(d){return d.front_radius[0]-10;})
-			 	.outerRadius(function(d){return d.front_radius[0];})
-			 	.startAngle(Math.PI/2)
-			 	.endAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]+Math.PI/2;
-			 	});
-			 	
-			 brake.selectAll('.unstopable').attr('d',bArc);
-			 bArc
-			 	.startAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]+Math.PI/2;
-				})
-				.endAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]*(1.15)+Math.PI/2;
-				});
-			 brake.selectAll('.warning').attr('d',bArc);
-
 
 
 		 }
@@ -529,27 +458,24 @@ angular.module('testYoApp')
 		var vr = 0;
 		 
 		var motionInfo = {};
-		
-		function nextTD(d) {
-			return function () {
-				return Math.random()*crane.front_radius[0];
-			};
-		}
-		
 		for (var i = 0; i < cranes.length; ++i) {
 			var crane = cranes[i];
+			var key = crane['__'];
 			var info = {
 				v:0,
 				av:1,
 				td:0,
 				tr:0,
+				vr:0,
 				avr:(crane.max_slew_speed[0]/60)*2*Math.PI,
-				nextTD:nextTD(crane),
+				nextTD:function(){
+		 			return Math.random()*crane.front_radius[0];
+		 		},
 				nextTR:function() {
 		 			return Math.random()*2*Math.PI;
 		 		},
-			};
-			motionInfo[crane.__] = info;
+				};
+			motionInfo[key] = info;
 		}
 		 
 		var interval;
@@ -585,20 +511,19 @@ angular.module('testYoApp')
 				}
 				d[0] = d[0] + info.v*diff;
 			 
-				d = measurments[key].rotation.latest.r;
-				var m = measurments[key].slew_speed.latest;
-				if (d[0] > info.tr) {
-					if (m[0] > 0) {
-				 		info.tr = info.nextTR();
-					}
-					m[0] = -info.avr;
-				} else {
-					if (m[0] < 0) {
-				 		info.tr = info.nextTR();
-					}
-					m[0] = info.avr;
-				}
-				d[0] = d[0] + m[0]*diff;
+				 d = measurments[key].rotation.latest.r;
+				 if (d[0] > info.tr) {
+				 	if (info.vr > 0) {
+					 	info.tr = info.nextTR();
+				 	}
+					info.vr = -info.avr;
+				 } else {
+				 	if (info.vr < 0) {
+					 	info.tr = info.nextTR();
+				 	}
+					info.vr = info.avr;
+				 }
+				 d[0] = d[0] + info.vr*diff;
 				
 			 }
 			 
@@ -617,27 +542,12 @@ angular.module('testYoApp')
 			}
 			showingRadii = t;
 		}
-		
-		var showingBrake = false;
-		function toggleBrake(t) {
-			var craneEls = craneGroup.selectAll('.crane');
-			if (t && !showingBrake) {
-				appendCraneBrake(craneEls);
-			} else {
-				removeCraneBrake(craneEls);
-			}
-			showingBrake = t;
-		}
+		var lastUpdateTime = performance.now();
+		update();
 		 
 		scope.$watch('dlg.$scope.showRadii',function(show) {
 			toggleRadii(dlg.$scope.showRadii);
 		});
-		scope.$watch('dlg.$scope.showBrake',function(show) {
-			toggleBrake(dlg.$scope.showBrake);
-		});
-
-		var lastUpdateTime = performance.now();
-		update();
       }
     };
   }]);

@@ -56,7 +56,7 @@ angular.module('testYoApp')
 			placeAndReleaseY:0,
 			travelTime:0,
 			tavelTimeY:0,
-		};
+		}
 		data.forEach(function(d){
 			var vals = d.t.plateProcess;
 			var pd = {
