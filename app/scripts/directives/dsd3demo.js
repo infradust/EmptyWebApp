@@ -20,43 +20,9 @@ function angleToPoint(x1,y1) {
 	}
 	return p;
 }
-
+ 
 function circleCenteredIntersection(r0,r1,x1,y1) {
-	var d2 = x1*x1 + y1*y1;
-	var d = Math.sqrt(d2);
-	var res;
-	
-	if (d > r0 + r1) { //circles have no intersection ==> too far
-		res = undefined;
-	} else if (d < r1){ //center is inside other circle
-		res = {
-			startAngle:0,
-			endAngle:2*Math.PI,
-		};
-	} else if(d < r0) { //other circle is inside current circle
-		res = pointCircleTangentArc(r1,x1,y1);
-	} else /*if (r1 < d + r0 && r0 < d +r1)*/{
-		var p = angleToPoint(x1,y1);		
-		var r0_2 = r0*r0;
-		var r1_2 = r1*r1;
-		var c = (r1_2-r0_2+d2)/(2*d);
-		var b2 = r1_2-c*c;
-		var a2 = r0_2-b2;
-		var diff = Math.atan(Math.sqrt(b2/a2));
-		//console.log('b2',b2,'a2',a2,'d2',d2,'c2',c*c,'diff',diff);
-		res = {
-			startAngle:(p-diff),
-			endAngle: (p+diff),
-		};	
-	}/* else {
-		res = pointCircleTangentArc(r1,x1,y1);
-	}*/
-	return res;
-}
-
-function circleCenteredIntersection2(r0,r1,x1,y1) {
-	var d2 = x1*x1 + y1*y1;
-	var d = Math.sqrt(d2);
+	var d = Math.sqrt(x1*x1 + y1*y1);
 	var res;
 	if (d > r0 + r1) {
 		res = undefined;
@@ -64,11 +30,11 @@ function circleCenteredIntersection2(r0,r1,x1,y1) {
 		var p = angleToPoint(x1,y1);		
 		var r0_2 = r0*r0;
 		var r1_2 = r1*r1;
-		var c = (r1_2-r0_2+d2)/(2*d);
+		var c = (r1_2-r0_2+d*d)/(2*d);
 		var b2 = r1_2-c*c;
 		var a2 = r0_2-b2;
 		var diff = Math.atan(Math.sqrt(b2/a2));
-		console.log('b2',b2,'a2',a2,'d2',d2,'c2',c*c,'diff',diff);
+		console.log('b2',b2,'a2',a2,'d2',d*d,'c2',c*c,'diff',diff);
 		res = {
 			startAngle:(p-diff),
 			endAngle: (p+diff),
@@ -415,7 +381,6 @@ angular.module('testYoApp')
 			 				update(false);
 		 				})
 		 				.on('dragend',function(d){
-			 				lastUpdateTime = performance.now()
 			 				update(true);
 		 				});
 		 
@@ -606,14 +571,7 @@ angular.module('testYoApp')
 			 for (var i = 0; i < cranes.length; ++i) {
 			 	var key = cranes[i]['__'];
 			 	var info = motionInfo[key];
-				var d = measurments[key].trolly_pos.latest.d;
-				if (d[0] > cranes[i].front_radius[0]) {
-					d[0] = cranes[i].front_radius[0];
-					info.v = -info.av;
-				} else if (d[0] < 0) {
-					d[0] = 0;
-					info.v = info.av;
-				}
+				var d = measurments[key].trolly_pos.latest.d;			 
 				if (d[0] > info.td) {
 					if (info.v > 0) {
 						info.td = info.nextTD();

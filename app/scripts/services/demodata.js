@@ -316,58 +316,7 @@ angular.module('testYoApp')
 					var trav = this.travel.t + this.travel.heightFunc(h) + (Math.random()-0.5)*2*2*60 + bias.travel*Math.random();
 					var plar = this.placeAndRelease.t + this.placeAndRelease.heightFunc(h) + (Math.random()-0.5)*2*4*60 + bias.placeAndRelease*Math.random();
 					return [conn,trav,plar];
-				},
-				nextT:function(h){return this.connect.t+
-										 this.travel.t+
-										 this.placeAndRelease.t+
-										 this.connect.heightFunc(h)+
-										 this.travel.heightFunc(h)+
-										 this.placeAndRelease.heightFunc(h);
-				},
-				maxAmount:function(count,t,h){
-					var nextH = h(count+1); 
-					var nextT = this.nextT(nextH); 
-					var amount=0; 
-					for(;t > nextT;){
-						t-=nextT; 
-						amount++;
-						count++;
-						nextH = h(count+1);
-						nextT = this.nextT(nextH);
-					}
-					return amount;
-				},
-			},
-			blockProcess: {
-				connect : {t:2*60,u:'s',desc:'Connection time',heightFunc:function(h){return 0;}},//connection time in seconds
-				travel : {t:(5*60),u:'s',desc:'Lift time',heightFunc:function(h){return 10*h;}},//plate place release in seconds
-				placeAndRelease : {t:(3*60),u:'s',desc:'Placement and release',heightFunc:function(h){return 0;}},//plate place release in seconds
-				sim:function(h,bias){
-					var conn = this.connect.t + this.connect.heightFunc(h) + (Math.random()-0.5)*2*20 + bias.connect*Math.random();
-					var trav = this.travel.t + this.travel.heightFunc(h) + (Math.random()-0.5)*2*2*60 + bias.travel*Math.random();
-					var plar = this.placeAndRelease.t + this.placeAndRelease.heightFunc(h) + (Math.random()-0.5)*2*2*60 + bias.placeAndRelease*Math.random();
-					return [conn,trav,plar];
-				},
-				nextT:function(h){return this.connect.t+
-										 this.travel.t+
-										 this.placeAndRelease.t+
-										 this.connect.heightFunc(h)+
-										 this.travel.heightFunc(h)+
-										 this.placeAndRelease.heightFunc(h);
-				},
-				maxAmount:function(count,t,h){
-					var nextH = h(count+1); 
-					var nextT = this.nextT(nextH); 
-					var amount=0; 
-					for(;t > nextT;){
-						t-=nextT; 
-						amount++;
-						count++;
-						nextH = h(count+1);
-						nextT = this.nextT(nexth);
-					}
-					return amount;
-				},
+				}
 			},
 			reaquire:{
 				travelTime:{t:(3*60),u:'s',desc:'Time to next load',heightFunc:function(h){return 6*h;}},
@@ -375,34 +324,9 @@ angular.module('testYoApp')
 					var trav = this.travelTime.t + this.travelTime.heightFunc(h) + (Math.random()-0.5)*2*2*60 +	bias.travelTime*Math.random();
 					return [trav];
 				},
-				nextT:function(h){
-					return this.travelTime.t+this.travelTime.heightFunc(h);
-				},
 			},
 		},
 	 };
-	 
-	 function nextTProcess(h,process) {
-		 var nextT = 0;
-		 for (var i = 0; i< process.length; ++i) {
-			 nextT+=process[i].nextT(h);
-		 }
-		 return nextT;
-	 }
-	 
-	function maxAmount(count,h,t,process) {
-		var nextH = h(count+1); 
-		var nextT = nextTProcess(nextH,process); 
-		var amount=0;
-		for(;t >= nextT;){
-			t-=nextT; 
-			amount++;
-			count++;
-			nextH = h(count+1);
-			nextT = nextTProcess(nextH,process);
-		}
-		return amount;		 
-	}
 
 	 
 	 var ptotal = {
@@ -435,12 +359,11 @@ angular.module('testYoApp')
 	 	var res = projectExpectedSchedule['d'+i];
 		if (res === undefined) {
 			var ts = timingStats.c;
+			var plates = 20 - i*2 + Math.floor(Math.random()*10);//how many plates today
 			var h = i*10; //day height [m]
-			var plates = maxAmount(0,function(i){return h;},12*60*60,[ts.reaquire,ts.plateProcess])/* + (Math.random()-0.5)*2*3*/;//how many plates today
-			plates = Math.floor(plates);
 			var connectionTime = plates*(ts.plateProcess.connect.t+ts.plateProcess.connect.heightFunc(h));
 			var travelTime = plates*(ts.plateProcess.travel.t+ts.plateProcess.travel.heightFunc(h));
-			var prTime = plates*(ts.plateProcess.placeAndRelease.t+ts.plateProcess.placeAndRelease.heightFunc(h));
+			var prTime = plates*(ts.plateProcess.placeAndRelease.t+ts.plateProcess.travel.heightFunc(h));
 			var ra = plates*(ts.reaquire.travelTime.t+ts.reaquire.travelTime.heightFunc(h));
 			ptotal.t += connectionTime+travelTime+prTime;
 			ptotal.plates += plates;
@@ -471,7 +394,7 @@ angular.module('testYoApp')
 		return res;
 	 }
 	 
-	 function simulateDay(dayPlates,bias,tplates,mplates) {
+	 function simulateDay(dayPlates,bias,tplates) {
 		var events = [];
 		var ts = timingStats.c;
 
@@ -490,8 +413,7 @@ angular.module('testYoApp')
 		 	},				
 		};
 		var plates = 0;
-		mplates = mplates < 0 ? 0 : mplates;
-		for (;curTime<ttime && plates < dayPlates+mplates;) {
+		for (;curTime<ttime && plates < dayPlates;) {
 			var h=heightForPlate(tplates);
 			var sim = ts.reaquire.sim(h,bias);
 			if (curTime+sim[0] >= ttime) {
@@ -521,8 +443,6 @@ angular.module('testYoApp')
 	 
 	 function simulateProject(days,bias) {
 		var tplates = 0;
-		var etplates = 0;
-		var mplates = 0;
 		var proj = {days:[]};
 		var ts = timingStats.c;
 		bias = bias || {};
@@ -532,20 +452,16 @@ angular.module('testYoApp')
 		bias.travelTime = bias.travelTime || 0;
 		for (var i = 0; i <days; ++i) {
 			var day = projectDay(i);
-			var progress = simulateDay(day.plates,bias,tplates,mplates);
+			var progress = simulateDay(day.plates,bias,tplates);
 			tplates+=progress.total.plateProcess.plates;
-			etplates+=day.plates;
-			mplates = etplates-tplates;
 			proj.days.push(progress);
 		}
-		console.log('done 1');
 		for(;tplates<projectExpectedSchedule.total.plates;) {
 			var diff = projectExpectedSchedule.total.plates-tplates;			
-			var progress = simulateDay(diff,bias,tplates,0);
+			var progress = simulateDay(diff,bias,tplates);
 			tplates+=progress.total.plateProcess.plates;
 			proj.days.push(progress);
 		}
-		console.log('done 2');
 		return proj;
 	 }
 	 
