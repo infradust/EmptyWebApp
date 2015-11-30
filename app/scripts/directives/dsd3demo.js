@@ -361,7 +361,6 @@ angular.module('testYoApp')
 				.attr('y1',0)
 				.attr('x2',function(d){return measurments[d['__']].trolly_pos.latest.d[0]+2.5;})
 				.attr('y2',0)
-/*
 			var lines = _selection.selectAll('.dist_line');
 			lines
 				.attr('x1',function(d){return d[0][1].d[0];})
@@ -370,7 +369,6 @@ angular.module('testYoApp')
 				.attr('y2',function(d){return measurments[d[1]['__']].base_location.latest.y[0]-d[0][0].y[0];})
 				.attr('stroke-width',2)
 				.attr('stroke','black');
-*/
 			
 			var brake = _selection.selectAll('.crane_brake');
 			var bArc = d3.svg.arc()
@@ -493,7 +491,7 @@ angular.module('testYoApp')
 		 
 		function unselectCrane() {
 			if (selectedCrane !== undefined) {
-/* 				selectedCraneSel.selectAll('.dist_line').remove(); */
+				selectedCraneSel.selectAll('.dist_line').remove();
 				dlg.unselect(selectedCrane);
 				selectedCrane = undefined;
 			}
@@ -509,7 +507,6 @@ angular.module('testYoApp')
 				unselectCrane();
 				selectedCrane = d;
 				dlg.select(d);
-/*
 				selectedCraneSel = d3.select(this);
 				var others = [];
 				var t_loc = measurments[d['__']].trolly_pos.latest;
@@ -519,9 +516,8 @@ angular.module('testYoApp')
 					if (d === other) continue;
 					others.push([[loc,t_loc],other]);
 				}
-*/
-				//var lines = selectedCraneSel.selectAll('.dist_line').data(others,function(d){return d[1]['__'];});
-				//lines.enter().append('line').classed('dist_line',true);
+				var lines = selectedCraneSel.selectAll('.dist_line').data(others,function(d){return d[1]['__'];});
+				lines.enter().append('line').classed('dist_line',true);
 			});
 			gs.on('mouseenter',mouseEnterCrane)
 			  .on('mouseleave',function(d){
@@ -567,8 +563,29 @@ angular.module('testYoApp')
 		var tr = 0;
 		var vr = 0;
 		 
-		var motionInfo = dlg.motionInfo || {};
+		var motionInfo = {};
 		
+		function nextTD(d) {
+			return function () {
+				return Math.random()*crane.front_radius[0];
+			};
+		}
+		
+		for (var i = 0; i < cranes.length; ++i) {
+			var crane = cranes[i];
+			var info = {
+				v:0,
+				av:1,
+				td:0,
+				tr:0,
+				avr:(crane.max_slew_speed[0]/60)*2*Math.PI,
+				nextTD:nextTD(crane),
+				nextTR:function() {
+		 			return Math.random()*2*Math.PI;
+		 		},
+			};
+			motionInfo[crane.__] = info;
+		}
 		 
 		var interval;
 		 
@@ -586,9 +603,6 @@ angular.module('testYoApp')
 			 var currentTime = performance.now();
 			 var diff = (currentTime - lastUpdateTime)/1000;
 			 lastUpdateTime = currentTime;
-			 dlg.cranesTick(diff);
-			 update(true);
-			 return;
 			 for (var i = 0; i < cranes.length; ++i) {
 			 	var key = cranes[i]['__'];
 			 	var info = motionInfo[key];
