@@ -34,11 +34,5 @@ angular
 	  		templateUrl:'views/about.html',
 	  		controller:'AboutCtrl',
 	  		controllerAs:'about',	  		
-  		})
-  		.state('proj',{
-	  		url:'/proj',
-	  		templateUrl:'views/proj.html',
-	  		controller:'ProjCtrl',
-	  		controllerAs:'ctrl',	  			  		
   		});
   }]);

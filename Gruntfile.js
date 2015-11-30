@@ -18,7 +18,7 @@ module.exports = function (grunt) {
     ngtemplates: 'grunt-angular-templates',
     cdnify: 'grunt-google-cdn'
   });
-  var serveStatic = require('serve-static');
+
   // Configurable paths for the application
   var appConfig = {
     app: require('./bower.json').appPath || 'app',
@@ -72,7 +72,7 @@ module.exports = function (grunt) {
       options: {
         port: 9000,
         // Change this to '0.0.0.0' to access the server from outside.
-        hostname: '0.0.0.0',
+        hostname: 'localhost',
         livereload: 35729
       },
       livereload: {
@@ -80,16 +80,16 @@ module.exports = function (grunt) {
           open: true,
           middleware: function (connect) {
             return [
-              serveStatic('.tmp'),
+              connect.static('.tmp'),
               connect().use(
                 '/bower_components',
-                serveStatic('./bower_components')
+                connect.static('./bower_components')
               ),
               connect().use(
                 '/app/styles',
-                serveStatic('./app/styles')
+                connect.static('./app/styles')
               ),
-              serveStatic(appConfig.app)
+              connect.static(appConfig.app)
             ];
           }
         }
@@ -99,13 +99,13 @@ module.exports = function (grunt) {
           port: 9001,
           middleware: function (connect) {
             return [
-              serveStatic('.tmp'),
-              serveStatic('test'),
+              connect.static('.tmp'),
+              connect.static('test'),
               connect().use(
                 '/bower_components',
-                serveStatic('./bower_components')
+                connect.static('./bower_components')
               ),
-              serveStatic(appConfig.app)
+              connect.static(appConfig.app)
             ];
           }
         }
