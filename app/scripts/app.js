@@ -41,9 +41,4 @@ angular
 	  		controller:'ProjCtrl',
 	  		controllerAs:'ctrl',	  			  		
   		});
-  }])
-  .run(['$rootScope','$state','$stateParams',function($rootScope,$state,$stateParams){
-	  $rootScope.$state = $state;
-	  $rootScope.$stateParams = $stateParams;
-  }]
-  );
+  }]);

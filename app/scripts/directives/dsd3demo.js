@@ -60,9 +60,6 @@ function timeToAngle(curr,angle,v) {
 
 function timeToArc(curr,alpha,beta,v) {
 	if (v === 0) {
-		if (curr > alpha && curr < beta) {
-			return NaN;
-		}
 		return undefined;
 	}
 	
@@ -96,29 +93,6 @@ function timeToArc(curr,alpha,beta,v) {
 	}
 }
 
-function segmentIntersection(s0,f0,s1,f1) {
-	var res = undefined;
-	if (s0 <= s1) {
-		if (f0 >= f1) { //seg1 contains seg2
-			return [s1,f1];
-		} else if (f0 > s1) {//seg1 end intersect seg2 start
-			return [s1,f0];
-		}
-	} else if (s1 < s0) {
-		if (f1 >= f0) { //seg2 contains seg1
-			return [s0,f0];
-		} else if (f1 > s0) {//seg2 end intersect seg1 start
-			return [s0,f1];
-		}
-	}
-	return res;
-}
-
-function radiiIntersectionTime(a0,s0,f0,v0,a1,s2,f1,v1) {
-	var t0 = timeToArc(a0,s0,f0,v0);
-	var t1 = timeToArc(a1,s1,f1,v1);
-}
-
 function pointCircleTangentArc(r1,x1,y1) { 
 	var d = Math.sqrt(x1*x1 + y1*y1);
 	var res;
@@ -136,7 +110,7 @@ function pointCircleTangentArc(r1,x1,y1) {
 }
 
 angular.module('testYoApp')
-  .directive('dsD3Demo', ['demoData','$interval','$rootScope',function (demoData,$interval,$rootScope) {
+  .directive('dsD3Demo', ['demoData','$interval',function (demoData,$interval) {
     return {
       template: '<div></div>',
       restrict: 'E',
@@ -378,20 +352,20 @@ angular.module('testYoApp')
 				var arcs = sel.selectAll('.ints').data(data,function(d){return d[1];});
 				arcs.enter().append('path').attr('d',arc).attr('fill',function(d){return d[0].target.color;}).classed('int_arc',true);
 				
-		}
+			}
 		 
-		var selectedCrane;
-		var selectedCraneSel;
+		 var selectedCrane;
+		 var selectedCraneSel;
 		 
-		function unselectCrane() {
-			if (selectedCrane !== undefined) {
-				selectedCraneSel.selectAll('.dist_line').remove();
+		 function unselectCrane() {
+			 if (selectedCrane !== undefined) {
+			 	selectedCraneSel.selectAll('.dist_line').remove();
 				dlg.unselect(selectedCrane);
 				selectedCrane = undefined;
-			}
-		}
+			 }
+		 }
 		 
-		function appendCraneIcon(_selection) {
+		 function appendCraneIcon(_selection) {
 			var gs = _selection.append('svg:g')
 									.classed('crane',true)
 									.call(drag);
@@ -419,20 +393,20 @@ angular.module('testYoApp')
 				s.classed('selected',false);
 				clearSelection();
 			});
-		};
+		 };
 		 
-		function clearSelection() {
-			selectionEl.selectAll("*").remove();
-			selectionEl.attr('transform',null);
-		}
+		 function clearSelection() {
+			 selectionEl.selectAll("*").remove();
+			 selectionEl.attr('transform',null);
+		 }
 		 
-		var root = d3.select(element[0]);
-		var svg = root.append('svg:svg').attr('viewBox','0 0 900 900');
-		var w = 900;
-		var h = 900;
-		var ctrlGroup = svg.append('svg:g');
-		ctrlGroup.append('rect')
-			.attr('width',900)
+		 var root = d3.select(element[0]);
+		 var svg = root.append('svg:svg').attr('viewBox','0 0 900 900');
+		 var w = 900;
+		 var h = 900;
+		 var ctrlGroup = svg.append('svg:g');
+		 ctrlGroup.append('rect')
+		    .attr('width',900)
 			.attr('height',900)
 			.style('fill','none')
 			.style('pointer-events','all')
@@ -440,114 +414,119 @@ angular.module('testYoApp')
 				if(d3.event.defaultPrevented) return;
 				unselectCrane();
 			});
-		var content = svg.append('svg:g').attr('transform',function(){return 'translate(0,0)scale(1)';});
-		var z = function() {
-			content.attr('transform','translate('+d3.event.translate+')scale('+d3.event.scale+')');
-		};
-		var zoomer = d3.behavior.zoom()
-			 .scaleExtent([0.001, 10])
-			 .on("zoom", z);
-		ctrlGroup.call(zoomer);
-		var selectionEl = content.append('svg:g').classed('selection',true);
-		var craneDecor = content.append('svg:g').classed('crane_decor',true);
-		var craneGroup = content.append('svg:g').classed('crane_group',true);
-		
-		var v = 0;
-		var td = 0;
-		var tr = 0;
-		var vr = 0;
+		 var content = svg.append('svg:g').attr('transform',function(){return 'translate(0,0)scale(1)';});
+		 var z = function() {
+				content.attr('transform','translate('+d3.event.translate+')scale('+d3.event.scale+')');
+			};
+		 var zoomer = d3.behavior.zoom()
+				 .scaleExtent([0.001, 10])
+				 .on("zoom", z);
+		 ctrlGroup.call(zoomer);
+		 var selectionEl = content.append('svg:g').classed('selection',true);
+		 var craneDecor = content.append('svg:g').classed('crane_decor',true);
+		 var craneGroup = content.append('svg:g').classed('crane_group',true);
 		 
-		var motionInfo = {};
-		for (var i = 0; i < cranes.length; ++i) {
-			var crane = cranes[i];
-			var key = crane['__'];
-			var info = {
-				v:0,
-				av:1,
-				td:0,
-				tr:0,
-				vr:0,
-				avr:(crane.max_slew_speed[0]/60)*2*Math.PI,
-				nextTD:function(){
-		 			return Math.random()*crane.front_radius[0];
-		 		},
-				nextTR:function() {
-		 			return Math.random()*2*Math.PI;
-		 		},
-				};
-			motionInfo[key] = info;
-		}
+		 var v = 0;
+		 var td = 0;
+		 var tr = 0;
+		 var vr = 0;
 		 
-		var interval;
-		 
-		function update(doInterval) {
-		 var craneEls = craneGroup.selectAll('.crane').data(cranes,function(d){return d['__'];});
-		 //var radaiEl = craneDecor.selectAll('.crane_radius').data(cranes,function(d){return d['__'];});
-		 craneEls.exit().remove();
-		 //radaiEl.exit().remove();			 
-		 appendCraneIcon(craneEls.enter());
-		 updateCraneIcon(craneEls);
-		 if (doInterval === false || $rootScope.$state.current.name !== 'home') {
-			 return;
+		 var motionInfo = {};
+		 for (var i = 0; i < cranes.length; ++i) {
+		 	var crane = cranes[i];
+		 	var key = crane['__'];
+		 	var info = {
+		 		v:0,
+		 		av:1,
+		 		td:0,
+		 		tr:0,
+		 		vr:0,
+		 		avr:(crane.max_slew_speed[0]/60)*2*Math.PI,
+		 		nextTD:function(){
+			 			return Math.random()*crane.front_radius[0];
+			 		},
+		 		nextTR:function() {
+			 			return Math.random()*2*Math.PI;
+			 		},
+		 		};
+		 	motionInfo[key] = info;
 		 }
-		 interval = $interval(function(){
-			 var currentTime = performance.now();
-			 var diff = (currentTime - lastUpdateTime)/1000;
-			 lastUpdateTime = currentTime;
-			 for (var i = 0; i < cranes.length; ++i) {
-			 	var key = cranes[i]['__'];
-			 	var info = motionInfo[key];
-				var d = measurments[key].trolly_pos.latest.d;			 
-				if (d[0] > info.td) {
-					if (info.v > 0) {
-						info.td = info.nextTD();
-				 	}
-					info.v = -info.av;
-				} else {
-				 	if (info.v < 0) {
-					 	info.td = info.nextTD();
-				 	}
-					info.v = info.av;
-				}
-				d[0] = d[0] + info.v*diff;
-			 
-				 d = measurments[key].rotation.latest.r;
-				 if (d[0] > info.tr) {
-				 	if (info.vr > 0) {
-					 	info.tr = info.nextTR();
-				 	}
-					info.vr = -info.avr;
-				 } else {
-				 	if (info.vr < 0) {
-					 	info.tr = info.nextTR();
-				 	}
-					info.vr = info.avr;
-				 }
-				 d[0] = d[0] + info.vr*diff;
-				
+		 
+		 var interval;
+		 
+		 function update(doInterval) {
+			 var craneEls = craneGroup.selectAll('.crane').data(cranes,function(d){return d['__'];});
+			 //var radaiEl = craneDecor.selectAll('.crane_radius').data(cranes,function(d){return d['__'];});
+			 craneEls.exit().remove();
+			 //radaiEl.exit().remove();			 
+			 appendCraneIcon(craneEls.enter());
+			 updateCraneIcon(craneEls);
+			 if (doInterval === false) {
+				 return;
 			 }
-			 
-			 
-			 update(true);
-		 },100,1);
-		}
+			 interval = $interval(function(){
+				 var currentTime = performance.now();
+				 var diff = (currentTime - lastUpdateTime)/1000;
+				 lastUpdateTime = currentTime;
+				 for (var i = 0; i < cranes.length; ++i) {
+				 	var key = cranes[i]['__'];
+				 	var info = motionInfo[key];
+					var d = measurments[key].trolly_pos.latest.d;			 
+					if (d[0] > info.td) {
+						if (info.v > 0) {
+							info.td = info.nextTD();
+					 	}
+						info.v = -info.av;
+					} else {
+					 	if (info.v < 0) {
+						 	info.td = info.nextTD();
+					 	}
+						info.v = info.av;
+					}
+					d[0] = d[0] + info.v*diff;
+				 
+					 d = measurments[key].rotation.latest.r;
+					 if (d[0] > info.tr) {
+					 	if (info.vr > 0) {
+						 	info.tr = info.nextTR();
+					 	}
+						info.vr = -info.avr;
+					 } else {
+					 	if (info.vr < 0) {
+						 	info.tr = info.nextTR();
+					 	}
+						info.vr = info.avr;
+					 }
+					 d[0] = d[0] + info.vr*diff;
+					
+				 }
+				 
+				 
+				 update(true);
+			 },100,1);
+		 }
 		 
-		var showingRadii = false;
-		function toggleRadii(t) {
+		 dlg.$scope.showRadii = false;
+		 function showRadii() {
+			 var craneEls = craneGroup.selectAll('.crane');
+			 appendCraneRadius(craneEls);
+		 };
+		 function hideRadii() {
 			var craneEls = craneGroup.selectAll('.crane');
-			if (t && !showingRadii) {
-				appendCraneRadius(craneEls);
-			} else {
-				removeCraneRadius(craneEls);	
-			}
-			showingRadii = t;
-		}
-		var lastUpdateTime = performance.now();
-		update();
+			removeCraneRadius(craneEls);
+		 }
 		 
-		scope.$watch('dlg.$scope.showRadii',function(show) {
-			toggleRadii(dlg.$scope.showRadii);
-		});
+		 var lastUpdateTime = performance.now();
+		 
+		 update();
+		 
+		 scope.$watch('dlg.$scope.showRadii',function(show) {
+			 if (dlg.$scope.showRadii === true) {
+				 showRadii();
+			 } else {
+				 hideRadii();
+			 }
+		 });
       }
     };
   }]);

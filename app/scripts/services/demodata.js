@@ -180,6 +180,7 @@ angular.module('testYoApp')
 			slew_speed: {
 				latest:{t:[1,'s'],v:[0,'r']}
 			},
+
 		},
 		crane_04:{
 			base_location:{
@@ -199,6 +200,7 @@ angular.module('testYoApp')
 			slew_speed: {
 				latest:{t:[1,'s'],v:[0,'r']}
 			},
+
 		},
 		crane_05:{
 			base_location:{
