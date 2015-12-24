@@ -6,7 +6,66 @@
  * @description
  * # dsd3demo
  */
- 
+
+function polyline_to_nodes(polyline) {
+	var res = [];
+	var len = polyline.length;
+	for(var i = 0; i < len; ++i) {
+		var n = {x:d[0],y:d[1]};
+		res.push(n);
+	}
+	for(var i = 0; i < len; ++i) {
+		var c = res[i];
+		var p = res[(i-1)%len];
+		var n = res[(i+1)%len];
+		c.p1=p;
+		c.p2=n;
+	}
+	return res;
+}
+
+function z_rotation_points(points,angle) {
+	var res = [];
+	var cosAng = Math.cos(angle);
+	var sinAng = Math.sin(angle);
+	points.forEach(function(d){
+		var n = {x:d.x*cosAng - d.y*sinAng,y:d.x*sinAng + d.y*cosAng};
+		res.push(n);
+	});
+	return res;
+}
+
+function visible_frame_x_proj(polyline) {
+	var res = [];
+	var min=max=polyline[0];
+	poliline.forEach(function(d){
+		if (d.y>max.y) {
+			max = d;
+		}
+		if (d.y < min.y) {
+			min = d;
+		}
+	});
+	var next = (min.p1.x > min.p2.x ? min.p1 : min.p2);
+	res.push(min);
+	var prev = min;
+	min = next;
+	for (node = min; node != max; node=next) {
+		res.push(node);
+		next = (node.p1 === prev ? node.p2 : node.p1);
+		prev = node;
+	}
+	return res;
+}
+
+function visible_frame_path(frame) {
+	var res = [];
+	frame.forEach(function(d){
+		res.push([d.x,d.y]);
+	});
+	return res;
+}
+
 function angleToPoint(x1,y1) {
 	var p = NaN;
 	if (x1 >= 0 && y1 >= 0) {
@@ -185,7 +244,7 @@ angular.module('testYoApp')
 		var measurments = demoData.measurments;
 		var collisionTypes = demoData.collisionTypes;
 		 
-		var cranes = [inventory['crane_01'],inventory['crane_02'],inventory['crane_03'],inventory['crane_04'],inventory['crane_05']];
+		var cranes = dlg.cranes;
 		function compareByHeight(a,b) {
 			var ah = a.height[0];
 			var bh = b.height[0];
@@ -313,35 +372,6 @@ angular.module('testYoApp')
 			 	.classed('crane_brake',true);
 			 gs.append('path').classed('unstopable',true).attr('fill','red').attr('fill-opacity',0.2);
 			 gs.append('path').classed('warning',true).attr('fill','yellow').attr('fill-opacity',0.2);
-/*
-			 
-			 var bArc = d3.svg.arc()
-			 	.innerRadius(0)
-			 	.outerRadius(function(d){return d.front_radius[0];})
-			 	.startAngle(Math.PI/2)
-			 	.endAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]+Math.PI/2;
-			 	});
-			 	
-			 gs.append('path').attr('d',bArc).attr('fill','red').attr('fill-opacity',0.2);
-			 bArc
-			 	.startAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]+Math.PI/2;
-				})
-				.endAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
-			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]*(1.15)+Math.PI/2;
-				});
-			 gs.append('path').attr('d',bArc).attr('fill','yellow').attr('fill-opacity',0.2);
-*/
 			 
 		 }
 		 
@@ -361,16 +391,6 @@ angular.module('testYoApp')
 				.attr('y1',0)
 				.attr('x2',function(d){return measurments[d['__']].trolly_pos.latest.d[0]+2.5;})
 				.attr('y2',0)
-/*
-			var lines = _selection.selectAll('.dist_line');
-			lines
-				.attr('x1',function(d){return d[0][1].d[0];})
-				.attr('y1',0)
-				.attr('x2',function(d){var m = measurments[d[1]['__']]; return m.base_location.latest.x[0]-d[0][0].x[0]+m.trolly_pos.latest.d[0];})
-				.attr('y2',function(d){return measurments[d[1]['__']].base_location.latest.y[0]-d[0][0].y[0];})
-				.attr('stroke-width',2)
-				.attr('stroke','black');
-*/
 			
 			var brake = _selection.selectAll('.crane_brake');
 			var bArc = d3.svg.arc()
@@ -493,7 +513,6 @@ angular.module('testYoApp')
 		 
 		function unselectCrane() {
 			if (selectedCrane !== undefined) {
-/* 				selectedCraneSel.selectAll('.dist_line').remove(); */
 				dlg.unselect(selectedCrane);
 				selectedCrane = undefined;
 			}
@@ -509,19 +528,6 @@ angular.module('testYoApp')
 				unselectCrane();
 				selectedCrane = d;
 				dlg.select(d);
-/*
-				selectedCraneSel = d3.select(this);
-				var others = [];
-				var t_loc = measurments[d['__']].trolly_pos.latest;
-				var loc = measurments[d['__']].base_location.latest
-				for (var i = 0; i <cranes.length; ++i) {
-					var other = cranes[i];
-					if (d === other) continue;
-					others.push([[loc,t_loc],other]);
-				}
-*/
-				//var lines = selectedCraneSel.selectAll('.dist_line').data(others,function(d){return d[1]['__'];});
-				//lines.enter().append('line').classed('dist_line',true);
 			});
 			gs.on('mouseenter',mouseEnterCrane)
 			  .on('mouseleave',function(d){
@@ -537,14 +543,17 @@ angular.module('testYoApp')
 		}
 		 
 		var root = d3.select(element[0]);
-		var svg = root.append('svg:svg').attr('viewBox','0 0 900 900');
-		var w = 900;
-		var h = 900;
+		var w = 1280;
+		var h = 750;
+		var svg = root.append('svg:svg').attr('viewBox','0 0 '+w+' '+h);
+		svg.attr('width','100%').attr('height','100%');
 		var ctrlGroup = svg.append('svg:g');
 		ctrlGroup.append('rect')
-			.attr('width',900)
-			.attr('height',900)
+			.attr('width',w)
+			.attr('height',h)
 			.style('fill','none')
+			.style('stroke-width',1)
+			.style('stroke','black')
 			.style('pointer-events','all')
 			.on('click',function(){
 				if(d3.event.defaultPrevented) return;
@@ -558,6 +567,16 @@ angular.module('testYoApp')
 			 .scaleExtent([0.001, 10])
 			 .on("zoom", z);
 		ctrlGroup.call(zoomer);
+		
+		var liner = d3.svg.line()
+						.x(function(d){return d.x;})
+						.y(function(d){return d.y;})
+						.interpolate('linear');
+		content.append('path')
+			.attr('d',liner(dlg.frame)+'Z')
+			.attr('fill','none')
+			.attr('stroke-width',1)
+			.attr('stroke','black');
 		var selectionEl = content.append('svg:g').classed('selection',true);
 		var craneDecor = content.append('svg:g').classed('crane_decor',true);
 		var craneGroup = content.append('svg:g').classed('crane_group',true);

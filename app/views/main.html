@@ -1,6 +1,6 @@
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-2">
+		<div class="col-md-2 row-sm-height">
 			<h3>Actions<h3>
 			<div class="btn-group btn-group-sm" role="group">
 				<button type="button" class="btn btn-default" ng-click="toggleRadii()">{{showRadii ? "Hide radii" : "Show radii"}}</button>
@@ -10,7 +10,14 @@
 			</div>
 		</div>
 		<div class="col-md-7">
-			<ds-d3-demo dlg="visDlg"></ds-d3-demo>
+			<div class="row">
+				<div class="col-xs-12">
+					<ds-d3-demo dlg="visDlg" style="height:350px"></ds-d3-demo>
+				</div>
+				<div class="col-xs-12" >
+					<site-side-d3-view dlg="sideDlg" style="height:350px"></site-side-d3-view>
+				</div>
+			</div>
 		</div>
 		<div class="col-md-3" style="border:solid 1px black;" ng-if="selected !== undefined">
 			<h3>Details</h3>

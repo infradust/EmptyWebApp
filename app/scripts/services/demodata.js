@@ -549,6 +549,10 @@ angular.module('testYoApp')
 		return proj;
 	 }
 	 
+	 function pt(x,y) {
+		 return {x:x,y:y};
+	 }
+	 
 	 this.simulateProject = simulateProject;
 	 this.projectExpectedSchedule = projectExpectedSchedule;
 	 this.timingStats = timingStats;
@@ -557,4 +561,14 @@ angular.module('testYoApp')
 	 this.inventory = inventory;
 	 this.measurments = measurments;
 	 this.collisionTypes = collisionTypes;
+	 this.projects = {
+		 p1:{
+			inventory:inventory,
+			name:'City Center',
+			'__':'p1',
+			frame:[pt(200,200),pt(200,170),pt(220,170),pt(220,200),pt(310,200),pt(310,220),pt(150,220),pt(150,300),pt(130,300),pt(130,220),pt(100,220),pt(100,200)],
+			currentHeight:[20,'m'],
+			targetHeight:[60,'m'],
+		 },
+	 };
 });

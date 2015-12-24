@@ -11,17 +11,31 @@ angular.module('testYoApp')
   .filter('radToDeg',function(){return function(rad){return rad*180/Math.PI;};})
   .filter('fixed2',function() {return function(n){ return n.toFixed(2);};})
   .controller('MainCtrl', ['$scope','demoData',function ($scope,demoData) {
+  	var self = this;
 	$scope.selected = undefined;
 	$scope.ms = demoData.measurments;
 	
-    $scope.visDlg = this;
+    $scope.sideDlg= $scope.visDlg = this;
     $scope.spotDlg = this;
     this.$scope = $scope;
     var motionInfo = this.motionInfo = {};
     
 	var inventory = demoData.inventory;
 	var cranes = this.cranes = [inventory['crane_01'],inventory['crane_02'],inventory['crane_03'],inventory['crane_04'],inventory['crane_05']];
+	var frame = this.frame = demoData.projects.p1.frame;
 	var measurments = demoData.measurments;
+	var project = this.project = demoData.projects.p1;
+	
+	$scope.angleSliderOptions = {
+		min:0,
+		max:2*Math.PI,
+		step:0.001,
+		start:function(v){},
+		stop:function(v){},
+		orientation: 'horizontal',
+		range:'min',
+	};
+	$scope.angleSliderValue = 0;
 
 	function nextTD(d) {
 		return function () {
@@ -87,6 +101,7 @@ angular.module('testYoApp')
 			d[0] = d[0] + m[0]*dt;
 		}
 		
+		self.cranesChanged = true;
 		tickCounter++;
 		if (tickCounter == 10) {
 			tickCounter = 0;
@@ -117,7 +132,12 @@ angular.module('testYoApp')
 		}
 	};
 
-    
+	this.cranesChanged = false;
+	this.zRotation = 0;
+	$scope.zAngleSlide = function(angle) {
+		self.zRotation = angle;
+	}
+	    
     this.select = function(d) {
 		console.log('CTRL select:',d);
 		$scope.selected = d;
@@ -152,6 +172,5 @@ angular.module('testYoApp')
     	'Safety':{g:0.9},
     	_order:['Speed','Path','Safety'],
     };
-    
     
   }]);

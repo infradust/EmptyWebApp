@@ -17,7 +17,7 @@ angular
     'ngResource',
     'ui.router',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
   ])
   .config(['$stateProvider','$urlRouterProvider',function ($stateProvider,$urlRouterProvider) {
   	$urlRouterProvider.otherwise('/');
@@ -29,11 +29,17 @@ angular
 	  		controller:'MainCtrl',
 	  		controllerAs:'main',
   		})
-  		.state('about',{
-	  		url:'/about',
-	  		templateUrl:'views/about.html',
-	  		controller:'AboutCtrl',
-	  		controllerAs:'about',	  		
+  		.state('user',{
+	  		url:'/user',
+	  		templateUrl:'views/user.html',
+	  		controller:'UserCtrl',
+	  		controllerAs:'ctrl',	  		
+  		})
+  		.state('hawkeye',{
+	  		url:'/hawkeyeTracker',
+	  		templateUrl:'views/hawkeyetracker.html',
+	  		controller:'HawkeyetrackerCtrl',
+	  		controllerAs:'ctrl',
   		})
   		.state('proj',{
 	  		url:'/proj',
@@ -45,5 +51,16 @@ angular
   .run(['$rootScope','$state','$stateParams',function($rootScope,$state,$stateParams){
 	  $rootScope.$state = $state;
 	  $rootScope.$stateParams = $stateParams;
-  }]
-  );
+  }])
+  .controller('AppCtrl',['$scope','userService',function($scope,userService){
+  	if (userService.loggedOn) {
+	  	$scope.greeting = 'Hello ' + userService.user.name;
+  	}
+	  
+  }])
+  .directive('agLogo',[function(){
+	  return {
+		templateUrl:'views/logo.html',
+		restrict: 'E',  
+	  };
+  }]);

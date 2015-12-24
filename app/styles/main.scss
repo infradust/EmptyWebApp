@@ -12,6 +12,7 @@ $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/boots
 
 body {
   padding: 0;
+  padding-top:65px;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
@@ -90,10 +91,72 @@ body {
   }
 }
 
+.container-full {
+  margin: 0 auto;
+  width: 100%;
+}
+
 .transparent {
 	fill:transparent;
 }
 
 .int_arc {
 	fill-opacity:0.4;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.node rect {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+
+.node {
+  font: 10px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+.het_map {
+  width: 900px;
+  height: 900px;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+}
+
+.he_marker {
+	position:absolute;
+}
+
+.axis {
+  font: 10px sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.axis .domain {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .3;
+  stroke-width: 10px;
+  stroke-linecap: round;
+}
+
+.axis .halo {
+  fill: none;
+  stroke: #ddd;
+  stroke-width: 8px;
+  stroke-linecap: round;
 }
