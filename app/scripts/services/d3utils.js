@@ -17,6 +17,62 @@ angular.module('testYoApp')
 		child.parent = parent;
 		return child;
 	}
+	
+	var ns = DS.namespace('d3utils');
+	
+	DS.makeClass({
+		name:'D3Link',
+		namespace:ns,
+		cnst:function(source,target,key){
+			this.source = source;
+			this.target = target;
+			this.k = key;
+		},
+		load:function(){
+			this.id = function(d){return d.k;};
+		}
+	});
+	DS.makeClass({
+		name:'D3Node',
+		namespace:ns,
+		cnst:function(data){
+			this.$backing = data.backing;
+			this.$key = data.key;
+			this.children = data.children || [];
+			this.parent = data.parent;
+			this.expanded = data.expanded || false;
+		},
+		load:function(){
+			this.id = function(d){return d.$key;};
+		},
+		proto:function(p) {
+			p.reachableNodes = function(arr){
+				var res = arr || [];
+				res.push(this);
+				if (this.expanded) {
+					for (var i = 0; i < this.children.length; ++i) {
+						var c = this.children[i];
+						c.reachableNodes(res);
+					}
+				}
+				return res;
+			};
+			p.reachableLinks = function(arr) {
+				var res = arr || [];
+				if (this.expanded) {
+					for (var i = 0; i < this.children.length; ++i) {
+						var c = this.children[i];
+						res.push(new ns.D3Link(this,c,c.$key));
+					}
+					for (var i = 0; i < this.children.length; ++i) {
+						this.children[i].reachableLinks(res);
+					}					
+				}
+				return res;	
+			};
+		},
+	});
+	
 	function node(backing,key) {
 		return {
 			backing:backing,
@@ -72,6 +128,6 @@ angular.module('testYoApp')
 	this.baseSvg = makeSvgBaseView;
 	this.addZoom = addZoom;
 	this.addZoomBaseView = addZoomBaseView;
-	this.graph = {node:node,link:link,addChild:addChild};
+	this.graph = {node:node,link:link,addChild:addChild,d3node:ns.D3Node,d3link:ns.D3Link};
     
   });

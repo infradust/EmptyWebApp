@@ -32,6 +32,7 @@ angular.module('testYoApp')
 				    .on("brush", brushed);
 				function brushed() {
 					d3.event.sourceEvent.stopPropagation();
+					//d3.event.stopPropagation();
 					var value = brush.extent()[0];
 					if (d3.event.sourceEvent) { // not a programmatic event
 					    value = sliderAngleSpan.invert(d3.mouse(this)[0]);
@@ -122,6 +123,7 @@ angular.module('testYoApp')
 						var b = craneBase(d.__);
 						var r = craneRotation(d.__);
 						var crane = {
+							crn:d,
 							x:b.x,
 							y:b.y,
 							r:r,
@@ -201,18 +203,38 @@ angular.module('testYoApp')
 					crs.select('.h_crane_block')
 						.attr('cx',function(d){return -(d.t*d.r.y+d.y);})
 						.attr('cy',function(d){return yFnc(d.hbh);});
+					crs.select('.bulb')
+						.attr('cx',function(d){return -(d.t*d.r.y+d.y);})
+						.attr('cy',function(d){return yFnc(d.hbh);});
 				}
 				
-				scope.$watch('dlg.zRotation',function(value){
-					currentAngle = dlg.zRotation;
-					update();
-				});
 				scope.$watch('dlg.cranesChanged',function(value){
 					if (dlg.cranesChanged === true) {
 						update();
 					}
 					dlg.cranesChanged = false;
 					
+				});
+				
+				function pulse() {
+					var vis = d3.select(this);
+					vis.transition().duration(500).attr('r',15).transition().duration(500).attr('r',10).each('end',function(d){if (d.state !== 0) pulse.call(this);});
+				}
+
+				
+				scope.$watch('dlg.$scope.crane_state_changed',function(){
+					var crane = hView.selectAll('.h_crane');
+					crane.each(function(d,i){
+						var vis = d3.select(this);
+						if (d.crn.state === 0) {
+							vis.select('.bulb').remove();
+						} else {
+							var bulb = vis.selectAll('.bulb').data([d]);
+							bulb.enter().append('circle').attr({'class':'bulb',cy:0,r:10,'fill-opacity':0.5,fill:'red'}).transition().duration(500).each(pulse);
+							//bulb.attr('cx',-(d.t*d.r.y+d.y)).attr('cy',yFnc(d.hbh));
+						}
+					});			
+
 				});
 				
 				update();

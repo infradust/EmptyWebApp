@@ -25,7 +25,12 @@ angular.module('testYoApp')
 			 '__':'d',
 			 name:'Distance',
 			 precision:[0.5,'m'],
-		 }
+		 },
+		 w:{
+			'__':'w',
+			name:'Weight',
+			precision:[10,'kg'], 
+		 },
 	 };
 	 
 	 var kinds = {
@@ -56,6 +61,7 @@ angular.module('testYoApp')
 				trolly_pos:{type:inputTypes['d'],disp:'Trolly distance',desc:'The distance of the trolly on main jib'},
 				hook_block_height:{type:inputTypes['d'],disp:'Hook height',desc:'the distance of the hook from the jib'},
 				slew_speed:{type:inputTypes['r'],disp:'Current slew speed',desc:'The angular velocity of the jib[rad/sec]'},
+				load:{type:inputTypes['w'],disp:'Current load',desc:'The weight the crane is carrying'},
 			},
 		},
 	 };
@@ -141,6 +147,9 @@ angular.module('testYoApp')
 			slew_speed: {
 				latest:{t:[1,'s'],v:[0,'r']}
 			},
+			load: {
+				latest:{t:[1,'s'],d:[0,'kg'],c:undefined},	
+			},
 			
 		},
 		crane_02:{
@@ -161,6 +170,9 @@ angular.module('testYoApp')
 			slew_speed: {
 				latest:{t:[1,'s'],v:[0,'r']}
 			},
+			load: {
+				latest:{t:[1,'s'],d:[0,'kg'],c:undefined},	
+			},
 		},
 		crane_03:{
 			base_location:{
@@ -179,6 +191,9 @@ angular.module('testYoApp')
 			},
 			slew_speed: {
 				latest:{t:[1,'s'],v:[0,'r']}
+			},
+			load: {
+				latest:{t:[1,'s'],d:[0,'kg'],c:undefined},	
 			},
 		},
 		crane_04:{
@@ -199,6 +214,9 @@ angular.module('testYoApp')
 			slew_speed: {
 				latest:{t:[1,'s'],v:[0,'r']}
 			},
+			load: {
+				latest:{t:[1,'s'],d:[0,'kg'],c:undefined},	
+			},
 		},
 		crane_05:{
 			base_location:{
@@ -217,6 +235,9 @@ angular.module('testYoApp')
 			},
 			slew_speed: {
 				latest:{t:[1,'s'],v:[0,'r']}
+			},
+			load: {
+				latest:{t:[1,'s'],d:[0,'kg'],c:undefined},	
 			},
 		},
 	
@@ -238,6 +259,7 @@ angular.module('testYoApp')
 			tower_radius:[2,'m'],
 			max_slew_speed:[0.6,'rpm'],
 			break_speed:[0.35,'rpm'],
+			state:0,
 		},
 		crane_02 : {
 			'_':kinds['c'],
@@ -254,6 +276,7 @@ angular.module('testYoApp')
 			tower_radius:[2,'m'],
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.3,'rpm'],
+			state:0,
 		},
 		crane_03 : {
 			'_':kinds['c'],
@@ -270,6 +293,7 @@ angular.module('testYoApp')
 			tower_radius:[2,'m'],
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.2,'rpm'],
+			state:0,
 		},
 		crane_04 : {
 			'_':kinds['c'],
@@ -286,6 +310,7 @@ angular.module('testYoApp')
 			tower_radius:[2,'m'],
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.1,'rpm'],
+			state:0,
 		},
 		crane_05 : {
 			'_':kinds['c'],
@@ -302,6 +327,7 @@ angular.module('testYoApp')
 			tower_radius:[2,'m'],
 			max_slew_speed:[0.8,'rpm'],
 			break_speed:[0.4,'rpm'],
+			state:0,
 		},
 	 };
 	 
@@ -436,7 +462,7 @@ angular.module('testYoApp')
 		if (res === undefined) {
 			var ts = timingStats.c;
 			var h = i*10; //day height [m]
-			var plates = maxAmount(0,function(i){return h;},12*60*60,[ts.reaquire,ts.plateProcess])/* + (Math.random()-0.5)*2*3*/;//how many plates today
+			var plates = maxAmount(0,function(i){return h;},12*60*60,[ts.reaquire,ts.plateProcess]);/* + (Math.random()-0.5)*2*3*/;//how many plates today
 			plates = Math.floor(plates);
 			var connectionTime = plates*(ts.plateProcess.connect.t+ts.plateProcess.connect.heightFunc(h));
 			var travelTime = plates*(ts.plateProcess.travel.t+ts.plateProcess.travel.heightFunc(h));
@@ -569,6 +595,20 @@ angular.module('testYoApp')
 			frame:[pt(200,200),pt(200,170),pt(220,170),pt(220,200),pt(310,200),pt(310,220),pt(150,220),pt(150,300),pt(130,300),pt(130,220),pt(100,220),pt(100,200)],
 			currentHeight:[20,'m'],
 			targetHeight:[60,'m'],
+			status:{desc:'In progress'},
+			messages:[],
+			playground:'home',
+		 },
+		 p2:{
+			inventory:inventory,
+			name:'Parking',
+			'__':'p2',
+			frame:[pt(200,200),pt(200,170),pt(220,170),pt(220,200),pt(310,200),pt(310,220),pt(150,220),pt(150,300),pt(130,300),pt(130,220),pt(100,220),pt(100,200)],
+			currentHeight:[0,'m'],
+			targetHeight:[80,'m'],
+			status:{desc:'Planning'},
+			messages:[],
+			playground:undefined,
 		 },
 	 };
 });

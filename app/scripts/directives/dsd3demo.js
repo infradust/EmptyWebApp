@@ -265,7 +265,7 @@ angular.module('testYoApp')
 				ints[type] = {};
 			}
 			ints[type][target['__']] = intersection;
-			console.log('intersection:',origin['__'],'with',target['__'],'on:',intersection.startAngle*180/Math.PI,',',intersection.endAngle*180/Math.PI,'type:',type);		
+			//console.log('intersection:',origin['__'],'with',target['__'],'on:',intersection.startAngle*180/Math.PI,',',intersection.endAngle*180/Math.PI,'type:',type);		
 		}
 		
 		function calcStaticIntersections() {
@@ -387,9 +387,9 @@ angular.module('testYoApp')
 											return 'translate('+p.x[0]+','+p.y[0]+')rotate('+(r.r[0]*180/Math.PI)+')';
 										});
 			_selection.selectAll('.trolly')
-				.attr('x1',function(d){return measurments[d['__']].trolly_pos.latest.d[0]-2.5;})
+				.attr('x1',function(d){return measurments[d.__].trolly_pos.latest.d[0]-2.5;})
 				.attr('y1',0)
-				.attr('x2',function(d){return measurments[d['__']].trolly_pos.latest.d[0]+2.5;})
+				.attr('x2',function(d){return measurments[d.__].trolly_pos.latest.d[0]+2.5;})
 				.attr('y2',0)
 			
 			var brake = _selection.selectAll('.crane_brake');
@@ -398,27 +398,28 @@ angular.module('testYoApp')
 			 	.outerRadius(function(d){return d.front_radius[0];})
 			 	.startAngle(Math.PI/2)
 			 	.endAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
+			 		
+			 		var m = measurments[d.__];
+			 		var vr = m.slew_speed.latest.v;
 			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
 			 		return tts*vr[0]+Math.PI/2;
 			 	});
-			 	
-			 brake.selectAll('.unstopable').attr('d',bArc);
+			 brake.selectAll('.unstopable').attr('d',function(d){return (measurments[d.__].slew_speed.latest.v[0] !== 0 ? bArc(d) : undefined);});
 			 bArc
 			 	.startAngle(function(d){
-			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
+			 		var m = measurments[d.__];
+			 		var vr = m.slew_speed.latest.v;
 			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
 			 		return tts*vr[0]+Math.PI/2;
 				})
 				.endAngle(function(d){
 			 		var m = measurments[d['__']];
-			 		var vr = m.slew_speed.latest;
+			 		var vr = m.slew_speed.latest.v;
 			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
-			 		return tts*vr[0]*(1.15)+Math.PI/2;
+			 		return tts*vr[0]*(1.5)+Math.PI/2;
 				});
-			 brake.selectAll('.warning').attr('d',bArc);
+			
+			 brake.selectAll('.warning').attr('d',function(d){return (measurments[d.__].slew_speed.latest.v[0] !== 0 ? bArc(d) : undefined);});
 
 
 
@@ -681,6 +682,26 @@ angular.module('testYoApp')
 		});
 		scope.$watch('dlg.$scope.showBrake',function(show) {
 			toggleBrake(dlg.$scope.showBrake);
+		});
+		
+		function pulse() {
+			var vis = d3.select(this);
+			vis.transition().duration(500).attr('r',15).transition().duration(500).attr('r',10).each('end',function(d){if (d.state !== 0) pulse.call(this);});
+		}
+		
+		scope.$watch('dlg.$scope.crane_state_changed',function(drop){
+			var craneEls = craneGroup.selectAll('.crane');
+			craneEls.each(function(d,i){
+				var vis = d3.select(this);
+				var tp = measurments[d.__].trolly_pos.latest.d[0];
+				if (d.state === 0) {
+					vis.select('.bulb').remove();
+				} else {
+					var bulb = vis.selectAll('.bulb').data([d]);
+					bulb.enter().append('circle').attr({'class':'bulb',cy:0,r:10,'fill-opacity':0.5,fill:'red'}).transition().duration(500).each(pulse);
+					bulb.attr('cx',tp);
+				}
+			});			
 		});
 
 		var lastUpdateTime = performance.now();

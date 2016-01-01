@@ -20,48 +20,60 @@
 			</div>
 		</div>
 		<div class="col-md-3" style="border:solid 1px black;" ng-if="selected !== undefined">
-			<h3>Details</h3>
+			<h3 ng-class="(selected.state == 1) ? 'alert alert-danger' : ''">Details</h3>
 			<form class="form-horizontal" accept-charset="UTF-8">
-				<div class="form-group">
+				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Name:</label>
 					<div class="col-sm-8 col-sm-pad">
 						<p class="form-controll-static">{{selected.name}}</p>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Height:</label>
 					<div class="col-sm-8 col-sm-pad">
 						<p class="form-controll-static">{{selected.height[0]}}[{{selected.height[1]}}]</p>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Front jib:</label>
 					<div class="col-sm-8 col-sm-pad">
 						<p class="form-controll-static">{{selected.front_radius[0]}}[{{selected.front_radius[1]}}]</p>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Rear jib:</label>
 					<div class="col-sm-8 col-sm-pad">
 						<p class="form-controll-static">{{selected.back_radius[0]}}[{{selected.back_radius[1]}}]</p>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Base:</label>
 					<div class="col-sm-8 col-sm-pad">
 						<p class="form-controll-static">{{base_x[0].toFixed(2)}}['m'],{{base_y[0].toFixed(2)}}['m'],{{base_z[0].toFixed(2)}}['m']</p>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Angle:</label>
 					<div class="col-sm-8 col-sm-pad">
 						<p class="form-controll-static">{{angle[0] | radToDeg | fixed2}}['deg']</p>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Hook height:</label>
 					<div class="col-sm-8 col-sm-pad">
 						<p class="form-controll-static">{{hook_height[0]}}['m']</p>
+					</div>
+				</div>
+				<div class="form-group-sm">
+					<label class="col-sm-4 control-label col-sm-pad">Load:</label>
+					<div class="col-sm-8 col-sm-pad">
+						<p class="form-controll-static">{{crane_load.d[0]}}['kg']<img ng-src="{{loadImages[crane_load.c]}}" width="100" height="100"/></p>
+					</div>
+				</div>
+				<div class="form-group-sm">
+					<label class="form-control-label col-sm-4 control-label col-sm-pad">State:</label>
+					<div class="col-sm-8 col-sm-pad">
+						<p class="form-controll-static">{{selected.state}}</p>
 					</div>
 				</div>
 			</form>

@@ -15,7 +15,7 @@ angular.module('testYoApp')
 	    name:'Demo1',
 	    email:'demomail@axongo.com',
 	    company:{'__':'vn',name:'Versitile Natures',logo:''},
-	    projects:[demoData.projects.p1],
+	    projects:[demoData.projects.p1,demoData.projects.p2],
 	    RACI:{R:{},A:{},C:{},I:{}}
     };
   }]);
