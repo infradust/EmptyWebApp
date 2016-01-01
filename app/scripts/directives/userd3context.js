@@ -74,22 +74,26 @@ angular.module('testYoApp')
 		}
 		
 		function rectSetup(s) {
-			s.append('rect').attr('width',20).attr('height',20).attr({x:-10,y:-10});
+			var rect = s.append('rect').attr({x:-10,y:-10});
+			var w =20,h=20;
 			if (this.text !== angular.noop) {			
-				s.append('text')
+				var t = s.append('text')
 					.attr('dy','.31em')
-					.attr('text-anchor','end')
+					.attr('text-anchor','middle')
 					.text(function(d){return d.text()});
+				w = t.node().getComputedTextLength();
 			}
+			rect.attr('width',8+w+8).attr('height',h);
 		}
 		
 		function prjSetup(s) {
-			function w_len(d){return 10*d.$backing.name.length;}; 
-			s.append('rect').attr('width',w_len).attr('height',20).attr({x:function(d){return -w_len(d)/2;},y:-10});
-			s.append('text')
+			var rect = s.append('rect').attr('height',20);
+			var t = s.append('text')
 				.attr('dy','.31em')
-				.attr('text-anchor','end')
+				.attr('text-anchor','middle')
 				.text(function(d){return d.$backing.name;});
+			var w = 8 + t.node().getComputedTextLength() + 8;
+			rect.attr('width',w).attr({x:-w/2,y:-10});
 		}
 		
 		var nodes,links;
@@ -181,7 +185,7 @@ angular.module('testYoApp')
 			if (n.expanded) {
 				for (var i = 0; i< n.children.length; ++i) {
 					var c = n.children[i];
-					c.fixed = false;
+					c.fixed = c.expanded;
 					unfixChildren(c);
 				}
 			}
@@ -214,6 +218,7 @@ angular.module('testYoApp')
 					if (d3.event.defaultPrevented) return;
 					d3.event.stopPropagation();
 					d.expanded = !d.expanded;
+					d.fixed = d.expanded;
 					unfixChildren(d);
 					update();
 				});
