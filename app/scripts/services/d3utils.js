@@ -46,6 +46,10 @@ angular.module('testYoApp')
 			this.id = function(d){return d.$key;};
 		},
 		proto:function(p) {
+			p.addChild = function(c){
+				this.children.push(c);
+				c.parent = this;
+			};
 			p.reachableNodes = function(arr){
 				var res = arr || [];
 				res.push(this);

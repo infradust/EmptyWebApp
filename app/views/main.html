@@ -8,6 +8,9 @@
 			<div class="btn-group btn-group-sm" role="group">
 				<button type="button" class="btn btn-default" ng-click="toggleBrake()">{{showBrake ? "Hide brake" : "Show brake"}}</button>
 			</div>
+			<div>
+				<d3-k-p-i root="kpiRoot"></d3-k-p-i>
+			</div>
 		</div>
 		<div class="col-md-7">
 			<div class="row">
@@ -29,21 +32,9 @@
 					</div>
 				</div>
 				<div class="form-group-sm">
-					<label class="col-sm-4 control-label col-sm-pad">Height:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{selected.height[0]}}[{{selected.height[1]}}]</p>
-					</div>
-				</div>
-				<div class="form-group-sm">
-					<label class="col-sm-4 control-label col-sm-pad">Front jib:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{selected.front_radius[0]}}[{{selected.front_radius[1]}}]</p>
-					</div>
-				</div>
-				<div class="form-group-sm">
-					<label class="col-sm-4 control-label col-sm-pad">Rear jib:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{selected.back_radius[0]}}[{{selected.back_radius[1]}}]</p>
+					<label class="col-sm-4 control-label col-sm-pad">Dimensions:</label>
+					<div class="col-sm-8 col-sm-pad fit_font">
+						<p class="form-controll-static">Height:&nbsp{{selected.height[0]}}[{{selected.height[1]}}],&nbspFront&nbspjib:&nbsp{{selected.front_radius[0]}}[{{selected.front_radius[1]}}],Rear&nbspjib:&nbsp{{selected.back_radius[0]}}[{{selected.back_radius[1]}}]</p>
 					</div>
 				</div>
 				<div class="form-group-sm">
@@ -61,19 +52,13 @@
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Hook height:</label>
 					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{hook_height[0]}}['m']</p>
+						<p class="form-controll-static">{{hook_height[0] | fixed2}}['m']</p>
 					</div>
 				</div>
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Load:</label>
 					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{crane_load.d[0]}}['kg']<img ng-if="crane_load.c" ng-src="{{loadImages[crane_load.c]}}" width="100" height="100"/></p>
-					</div>
-				</div>
-				<div class="form-group-sm">
-					<label class="form-control-label col-sm-4 control-label col-sm-pad">State:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{selected.state}}</p>
+						<p class="form-controll-static">{{crane_load.d[0] | fixed2}}['kg']<img ng-if="crane_load.c" ng-src="{{loadImages[crane_load.c]}}" width="100" height="100"/></p>
 					</div>
 				</div>
 			</form>

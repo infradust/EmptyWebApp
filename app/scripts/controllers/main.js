@@ -125,6 +125,9 @@ angular.module('testYoApp')
 	
 	var dangerScale = d3.scale.quantize().domain([0, 1]).range(['OK','Boundry', 'Warning', 'Danger']);
 	var dangerColorScale = d3.scale.quantize().domain([0, 1]).range(['green','yellow', 'orange', 'red']);
+	var P = {
+		ll:{drop:0.9},
+	};
 	
 	DS.makeClass({
 		name:'CraneLiftLower',
@@ -133,7 +136,7 @@ angular.module('testYoApp')
 		cnst:function(crane,data){
 			this.height = this.m.hook_block_height.latest.d;
 			this.load = this.m.load.latest.d;
-			this.p = data.dropP || 0;
+			this.p = data.dropP || P.ll.drop;
 			this.targetHeight = data.targetHeight || 0;//[m]
 			this.velocity = data.llVelocity || 1;//[m/sec]
 			this.lifting = true;
@@ -264,7 +267,6 @@ angular.module('testYoApp')
 			this.deps.push(new ns.CraneLiftLower(crane,{
 				targetHeight:(crane.height[0]-10),
 				llVelocity:3,
-				dropP:0.9,
 				onDone:function(){
 					//console.log('lifting load done!');
 				}
@@ -284,7 +286,6 @@ angular.module('testYoApp')
 			this.deps.push(new ns.CraneLiftLower(crane,{
 				targetHeight:0,
 				llVelocity:3,
-				dropP:0.9,
 				onDone:function(){
 					//console.log('lowering to target done!');
 				}
@@ -301,6 +302,7 @@ angular.module('testYoApp')
 		},
 	});
 	
+	this.P = P;
 	this.ns = ns;
 	this.dangerScale = dangerScale;
 	this.dangerColorScale = dangerColorScale;
@@ -309,8 +311,148 @@ angular.module('testYoApp')
 	this.mute = mute;
 	  
   }])
-  .controller('MainCtrl', ['$scope','demoData','MainService',function ($scope,demoData,MS) {
+  .controller('MainCtrl', ['$scope','demoData','MainService','d3Utils',function ($scope,demoData,MS,d3Utils) {
   	var self = this;
+  	
+  	function leafCopy(l,o) {
+	  	o.desc = l.desc;
+	  	o._dgrade = l._dgrade;
+	  	o.refs = l.refs;
+	  	return o;
+  	}
+  	
+  	var kpiCache = {};
+  	
+  	function leaf(backing,key,desc) {
+	  	var n = new d3Utils.graph.d3node({backing:backing,key:key});
+	  	kpiCache[key] = n;
+	  	n.desc = desc;
+	  	n._dgrade = 0;
+	  	n.refs = {};
+	  	n.resetRefs = function(){
+		  	for (var k in this.refs) {
+			  	this.refs[k].reset();
+			  	this.refs[k].resetRefs();
+		  	}
+	  	};
+	  	n.reset = angular.noop;
+	  	n.addRef = function(r){
+		  	this.refs[r.$key] = r;
+	  	};
+	  	n.grade = function(){
+	  		if(arguments.length === 1) {
+	  			this._dgrade = arguments[0];
+	  			this.resetRefs();
+	  			return this;
+	  		} else { 
+	  			return this._dgrade;
+	  		}
+	  	};
+	  	return n;
+  	}
+  	
+  	function nodeCopy(n,o) {
+	  	leafCopy(n,o);
+	  	o._grade = n._grade;
+	  	o.weights = n.weights;
+	  	o._wsum = n._wsum;
+  	}
+  	
+  	function nodeGrade(n) {
+	  		var g = 0;
+	  		g += ((1-n._wsum)*n._dgrade);
+	  		if (n.children.length !== 0) {
+		  		n.children.forEach(function(d,i){g += (n.weights[i]*d.grade());});
+	  		}
+		  	return g;
+  	}
+  	
+  	function node(backing,key,desc) {
+	  	var n = leaf(backing,key,desc);
+	  	n._grade = undefined;
+	  	n.weights = [];
+	  	n._wsum = 0;
+	  	n.reset = function(){this._grade = undefined;};
+	  	n.grade = function(){
+	  		if (arguments.length === 1) {
+		  		this._dgrade = arguments[1];
+		  		this.resetRefs();
+		  		return this;
+	  		} else {
+		  		if (this._grade !== undefined) {
+			  		return this._grade;
+		  		}
+		  		this._grade = nodeGrade(this);
+	  		}
+	  		return this._grade;
+	  	};
+	  	return n;
+  	}
+  	
+  	function addChild(n,c,w) {
+		n.children.push(c);
+		n.weights.push(w);
+		n._wsum += w;
+		c.addRef(n);
+		n._grade = undefined;
+  	}
+  	
+  	var root;
+  	var leafKPI;
+  	
+  	function kpiTree() {
+  	
+	  	var s = leaf({},'g_safety','General safety issues').grade(90);
+	  	var e = leaf({},'eff','Efficiency').grade(20);
+	  	var c = leaf({},'cost','Cost').grade(40);
+	  	var d = leaf({},'drop','Load drops').grade(90);
+	  	var cl = leaf({},'ccoll','Crane collisions').grade(90);
+	  	var n = leaf({},'nm','Near miss').grade(90);
+	  	
+	  	leafKPI = [s,e,c,d,cl,n];
+	  	var w = node({},'waste','Waste');
+	  	addChild(w,d,0.5);
+	  	addChild(w,cl,0.5);
+	  	
+	  	var safety = node({},'s','Safety');
+		addChild(safety,s,0.2);	  	
+		addChild(safety,d,0.2);	  	
+		addChild(safety,cl,0.4);	  	
+		addChild(safety,n,0.2);
+		
+		var eff = node({},'eff','Efficiency');
+		addChild(eff,w,0.4);
+		addChild(eff,c,0.1);
+		addChild(eff,d,0.2);
+		addChild(eff,c,0.2);
+		addChild(eff,safety,0.1);
+		
+		
+		root = node({},'__','Overall');	  	
+		addChild(root,safety,0.7);
+		addChild(root,c,0.1);
+		addChild(root,eff,0.2);		
+  	}
+  	kpiTree();
+  	
+  	$scope.kpiRoot = root;
+  	
+  	$scope.kpis = [
+  		{grade:50,$key:'s',desc:'Safety'},
+  		{grade:20,$key:'e',desc:'Efficiency'},
+  		{grade:100,$key:'d',desc:'Cost'}];
+  	
+  	setInterval(function(){
+	  	var i = Math.floor(Math.random()*$scope.kpis.length);
+	  	$scope.kpis[i].grade = Math.floor(Math.random()*101);
+	  	$scope.kpis = $scope.kpis.slice();
+	  	
+	  	var i = Math.floor(Math.random()*leafKPI.length);
+	  	leafKPI[i].grade(Math.floor(Math.random()*101));
+		$scope.$broadcast('kpi.change',{kpi:leafKPI[i]});	  	
+	  	
+  	},3000);
+  	
 	$scope.selected = undefined;
 	$scope.ms = demoData.measurments;
 	$scope.loadImages = {
