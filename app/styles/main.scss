@@ -164,3 +164,20 @@ body {
 .fit_font {
 	font-size: 2.0vmin;
 }
+
+.projectMessageBox {
+	padding-top: 5px;
+	padding-bottom: 2px;
+	height:300px;
+	border: 1px solid;
+	overflow : auto;
+}
+
+.prj_msgbox {
+	width:100%;
+}
+
+.prj_msg {
+	width:auto;
+	font-size: x-small;
+}

@@ -8,9 +8,14 @@
 			<div class="btn-group btn-group-sm" role="group">
 				<button type="button" class="btn btn-default" ng-click="toggleBrake()">{{showBrake ? "Hide brake" : "Show brake"}}</button>
 			</div>
-			<div>
+			<div class="input-group" role="group">
+				<span class="input-group-addon" id="basic-addon1">Drop probability:</span>
+				<input type="number" min="0" max="1" class="form-control" aria-describedby="basic-addon1" step="0.01" ng-model="P.ll.drop"/>
+			</div>
+			<div style="height:300px;">
 				<d3-k-p-i root="kpiRoot"></d3-k-p-i>
 			</div>
+			<project-messages msgs="messages"></project-messages>
 		</div>
 		<div class="col-md-7">
 			<div class="row">

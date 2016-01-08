@@ -311,8 +311,9 @@ angular.module('testYoApp')
 	this.mute = mute;
 	  
   }])
-  .controller('MainCtrl', ['$scope','demoData','MainService','d3Utils',function ($scope,demoData,MS,d3Utils) {
+  .controller('MainCtrl', ['$scope','$filter','demoData','MainService','d3Utils',function ($scope,$filter,demoData,MS,d3Utils) {
   	var self = this;
+  	$scope.P = MS.P;
   	
   	function leafCopy(l,o) {
 	  	o.desc = l.desc;
@@ -424,7 +425,7 @@ angular.module('testYoApp')
 		addChild(eff,w,0.4);
 		addChild(eff,c,0.1);
 		addChild(eff,d,0.2);
-		addChild(eff,c,0.2);
+		addChild(eff,cl,0.2);
 		addChild(eff,safety,0.1);
 		
 		
@@ -437,15 +438,19 @@ angular.module('testYoApp')
   	
   	$scope.kpiRoot = root;
   	
+/*
   	$scope.kpis = [
   		{grade:50,$key:'s',desc:'Safety'},
   		{grade:20,$key:'e',desc:'Efficiency'},
   		{grade:100,$key:'d',desc:'Cost'}];
+*/
   	
   	setInterval(function(){
+/*
 	  	var i = Math.floor(Math.random()*$scope.kpis.length);
 	  	$scope.kpis[i].grade = Math.floor(Math.random()*101);
 	  	$scope.kpis = $scope.kpis.slice();
+*/
 	  	
 	  	var i = Math.floor(Math.random()*leafKPI.length);
 	  	leafKPI[i].grade(Math.floor(Math.random()*101));
@@ -462,15 +467,6 @@ angular.module('testYoApp')
 		Sack:'images/bulk-bag.jpeg',
 	};
 
-	$scope.crane_state_changed = 0;
-	function dropDetected (name,data) {
-		var crane = data.crane;
-		crane.state = 1;
-		$scope.crane_state_changed++;
-		setTimeout(function(){crane.state = 0; $scope.crane_state_changed++;}, 6000);
-	}
-	MS.listen('drop',dropDetected);
-	
     $scope.sideDlg= $scope.visDlg = this;
     $scope.spotDlg = this;
     this.$scope = $scope;
@@ -480,7 +476,19 @@ angular.module('testYoApp')
 	var cranes = this.cranes = [inventory['crane_01'],inventory['crane_02'],inventory['crane_03'],inventory['crane_04'],inventory['crane_05']];
 	var frame = this.frame = demoData.projects.p1.frame;
 	var measurments = demoData.measurments;
-	var project = this.project = demoData.projects.p1;	
+	var project = this.project = demoData.projects.p1;
+	$scope.messages = project.messages;
+
+	$scope.crane_state_changed = 0;
+	function dropDetected (name,data) {
+		var crane = data.crane;
+		self.project.messages.push({msg:('Crane: ['+crane.__+'] dropped: '+$filter('fixed2')(data.loss)+'[kg] of: '+data.type),data:data,time:(new Date())});
+		crane.state = 1;
+		$scope.crane_state_changed++;
+		setTimeout(function(){crane.state = 0; $scope.crane_state_changed++;}, 6000);
+	}
+	MS.listen('drop',dropDetected);
+	
 		
 	var tickCounter = 0;
 	var craneTasks = {};

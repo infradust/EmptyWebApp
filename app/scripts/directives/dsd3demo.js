@@ -7,17 +7,20 @@
  * # dsd3demo
  */
 
+/*
 function polyline_to_nodes(polyline) {
 	var res = [];
 	var len = polyline.length;
-	for(var i = 0; i < len; ++i) {
-		var n = {x:d[0],y:d[1]};
+	var i,n;
+	for(i = 0; i < len; ++i) {
+		var d = polyline[i];
+		n = {x:d[0],y:d[1]};
 		res.push(n);
 	}
-	for(var i = 0; i < len; ++i) {
+	for(i = 0; i < len; ++i) {
 		var c = res[i];
 		var p = res[(i-1)%len];
-		var n = res[(i+1)%len];
+		n = res[(i+1)%len];
 		c.p1=p;
 		c.p2=n;
 	}
@@ -37,8 +40,9 @@ function z_rotation_points(points,angle) {
 
 function visible_frame_x_proj(polyline) {
 	var res = [];
-	var min=max=polyline[0];
-	poliline.forEach(function(d){
+	var min,max;
+	min=max=polyline[0];
+	polyline.forEach(function(d){
 		if (d.y>max.y) {
 			max = d;
 		}
@@ -50,7 +54,7 @@ function visible_frame_x_proj(polyline) {
 	res.push(min);
 	var prev = min;
 	min = next;
-	for (node = min; node != max; node=next) {
+	for (var node = min; node !== max; node=next) {
 		res.push(node);
 		next = (node.p1 === prev ? node.p2 : node.p1);
 		prev = node;
@@ -65,6 +69,7 @@ function visible_frame_path(frame) {
 	});
 	return res;
 }
+*/
 
 function angleToPoint(x1,y1) {
 	var p = NaN;
@@ -78,6 +83,22 @@ function angleToPoint(x1,y1) {
 		p = (y1 !== 0 ? Math.atan(x1/(-y1))+(3*Math.PI/2) : 0);
 	}
 	return p;
+}
+
+function pointCircleTangentArc(r1,x1,y1) { 
+	var d = Math.sqrt(x1*x1 + y1*y1);
+	var res;
+	if (d >= r1) {
+		var alpha = Math.asin(Math.abs(r1/d));
+		var p = angleToPoint(x1,y1);
+		res = {
+			startAngle:(p-alpha),
+			endAngle:(p+alpha),
+		};
+	} else {
+		res = {startAngle:0,endAngle:2*Math.PI};
+	}
+	return res;
 }
 
 function circleCenteredIntersection(r0,r1,x1,y1) {
@@ -113,6 +134,7 @@ function circleCenteredIntersection(r0,r1,x1,y1) {
 	return res;
 }
 
+/*
 function circleCenteredIntersection2(r0,r1,x1,y1) {
 	var d2 = x1*x1 + y1*y1;
 	var d = Math.sqrt(d2);
@@ -137,8 +159,9 @@ function circleCenteredIntersection2(r0,r1,x1,y1) {
 	}
 	return res;
 }
+*/
 
-function timeToAngle(curr,angle,v) {
+function timeToAngle(curr,alpha,v) {
 	var res = 0;
 	if (v > 0 && alpha < curr) {
 		res = 2*Math.PI+alpha-curr;
@@ -151,6 +174,7 @@ function timeToAngle(curr,angle,v) {
 	return res;
 }
 
+/*
 function timeToArc(curr,alpha,beta,v) {
 	if (v === 0) {
 		if (curr > alpha && curr < beta) {
@@ -188,9 +212,11 @@ function timeToArc(curr,alpha,beta,v) {
 		t:tbeta-talpha,
 	};
 }
+*/
 
+/*
 function segmentIntersection(s0,f0,s1,f1) {
-	var res = undefined;
+	var res;
 	if (s0 <= s1) {
 		if (f0 >= f1) { //seg1 contains seg2
 			return [s1,f1];
@@ -207,26 +233,11 @@ function segmentIntersection(s0,f0,s1,f1) {
 	return res;
 }
 
-function radiiIntersectionTime(a0,s0,f0,v0,a1,s2,f1,v1) {
+function radiiIntersectionTime(a0,s0,f0,v0,a1,s1,f1,v1) {
 	var t0 = timeToArc(a0,s0,f0,v0);
 	var t1 = timeToArc(a1,s1,f1,v1);
 }
-
-function pointCircleTangentArc(r1,x1,y1) { 
-	var d = Math.sqrt(x1*x1 + y1*y1);
-	var res;
-	if (d >= r1) {
-		var alpha = Math.asin(Math.abs(r1/d));
-		var p = angleToPoint(x1,y1);
-		res = {
-			startAngle:(p-alpha),
-			endAngle:(p+alpha),
-		};
-	} else {
-		res = {startAngle:0,endAngle:2*Math.PI};
-	}
-	return res;
-}
+*/
 
 angular.module('testYoApp')
   .directive('dsD3Demo', ['demoData','$interval','$rootScope',function (demoData,$interval,$rootScope) {
@@ -236,11 +247,10 @@ angular.module('testYoApp')
       scope:{dlg:'='},
       replace:true,
       link: function postLink(scope, element, attrs) {
-      	function nop(){};
+      	var nop = angular.noop;
       	var dlg = scope.dlg || {};
       	dlg.select = dlg.select || nop;
       	dlg.unselect = dlg.unselect || nop;
-		var inventory = demoData.inventory;
 		var measurments = demoData.measurments;
 		var collisionTypes = demoData.collisionTypes;
 		 
@@ -260,11 +270,11 @@ angular.module('testYoApp')
 			}
 			intersection.origin = origin;
 			intersection.target = target;
-			intersection['type'] = collisionTypes[type];
+			intersection.type = collisionTypes[type];
 			if (ints[type] === undefined) {
 				ints[type] = {};
 			}
-			ints[type][target['__']] = intersection;
+			ints[type][target.__] = intersection;
 			//console.log('intersection:',origin['__'],'with',target['__'],'on:',intersection.startAngle*180/Math.PI,',',intersection.endAngle*180/Math.PI,'type:',type);		
 		}
 		
@@ -272,13 +282,13 @@ angular.module('testYoApp')
 			intersections = {};
 			for(var i = 0; i< cranes.length; ++i) {
 				var crane = cranes[i];
-				var key = crane['__'];
+				var key = crane.__;
 				var ints = intersections[key] = {};
 				var p1 = measurments[key].base_location.latest;
 				for (var j = 0; j < cranes.length; ++j) {
-					if (i == j) continue;
+					if (i === j) {continue;}
 					var other = cranes[j];
-					var p2 = measurments[other['__']].base_location.latest;
+					var p2 = measurments[other.__].base_location.latest;
 					var intersection;
 					var dx = p2.x[0]-p1.x[0];
 					var dy = p2.y[0]-p1.y[0];
@@ -328,9 +338,9 @@ angular.module('testYoApp')
 				.attr('stroke','grey');
 				
 			_selection.append('line')
-				.attr('x1',function(d){return measurments[d['__']].trolly_pos.latest.d[0]-2.5;})
+				.attr('x1',function(d){return measurments[d.__].trolly_pos.latest.d[0]-2.5;})
 				.attr('y1',0)
-				.attr('x2',function(d){return measurments[d['__']].trolly_pos.latest.d[0]+2.5;})
+				.attr('x2',function(d){return measurments[d.__].trolly_pos.latest.d[0]+2.5;})
 				.attr('y2',0)
 				.attr('stroke-width',5)
 				.attr('stroke','black')
@@ -381,7 +391,7 @@ angular.module('testYoApp')
 		 
 		 function updateCraneIcon(_selection) {
 			 _selection.attr('transform',function(d){
-											var m = measurments[d['__']];
+											var m = measurments[d.__];
 											var p = m.base_location.latest;
 											var r = m.rotation.latest;
 											return 'translate('+p.x[0]+','+p.y[0]+')rotate('+(r.r[0]*180/Math.PI)+')';
@@ -390,7 +400,7 @@ angular.module('testYoApp')
 				.attr('x1',function(d){return measurments[d.__].trolly_pos.latest.d[0]-2.5;})
 				.attr('y1',0)
 				.attr('x2',function(d){return measurments[d.__].trolly_pos.latest.d[0]+2.5;})
-				.attr('y2',0)
+				.attr('y2',0);
 			
 			var brake = _selection.selectAll('.crane_brake');
 			var bArc = d3.svg.arc()
@@ -413,7 +423,7 @@ angular.module('testYoApp')
 			 		return tts*vr[0]+Math.PI/2;
 				})
 				.endAngle(function(d){
-			 		var m = measurments[d['__']];
+			 		var m = measurments[d.__];
 			 		var vr = m.slew_speed.latest.v;
 			 		var tts = Math.abs(vr[0])/((d.break_speed[0]/30)*Math.PI);
 			 		return tts*vr[0]*(1.5)+Math.PI/2;
@@ -428,7 +438,7 @@ angular.module('testYoApp')
 		 var drag = d3.behavior.drag()
 		 				.origin(function(d){return d;})
 		 				.on('drag',function(d){
-			 				var m = measurments[d['__']].base_location.latest;
+			 				var m = measurments[d.__].base_location.latest;
 			 				m.x[0] += d3.event.dx;
 			 				m.y[0] += d3.event.dy;
 			 				$interval.cancel(interval);
@@ -438,7 +448,7 @@ angular.module('testYoApp')
 			 				update(false);
 		 				})
 		 				.on('dragend',function(d){
-			 				lastUpdateTime = performance.now()
+			 				lastUpdateTime = performance.now();
 			 				update(true);
 		 				});
 		 
@@ -448,20 +458,20 @@ angular.module('testYoApp')
 				
 				clearSelection();
 				var sel = selectionEl;
-				var m = measurments[d['__']];
+				var m = measurments[d.__];
 				var p = m.base_location.latest;
-				sel.attr('transform',function(){return 'translate('+p.x[0]+','+p.y[0]+')'});
+				sel.attr('transform',function(){return 'translate('+p.x[0]+','+p.y[0]+')';});
 				sel.append('circle')
 					.attr('r',d.front_radius[0]+2)
 					.attr('stroke-width',0.5)
 					.attr('stroke','brown')
 					.classed('param',true).classed('transparent',true);
-				var ints = intersections[d['__']];
+				var ints = intersections[d.__];
 				var arc = d3.svg.arc()
 						.innerRadius(function(d){
 							var i = d[0];
 							var ir = 0;
-							switch(d[0].type['__']) {
+							switch(d[0].type.__) {
 								case 'cf':
 									ir = i.origin.front_radius[0]+1;
 									break;
@@ -480,7 +490,7 @@ angular.module('testYoApp')
 						.outerRadius(function(d){
 							var i = d[0];
 							var or = 0;
-							switch(d[0].type['__']) {
+							switch(d[0].type.__) {
 								case 'cf':
 									or = i.origin.front_radius[0]+4;
 									break;
@@ -510,7 +520,6 @@ angular.module('testYoApp')
 		}
 		 
 		var selectedCrane;
-		var selectedCraneSel;
 		 
 		function unselectCrane() {
 			if (selectedCrane !== undefined) {
@@ -525,7 +534,7 @@ angular.module('testYoApp')
 									.call(drag);
 			craneIcon(gs);
 			gs.on('click',function(d){
-				if (d3.event.defaultPrevented) return;
+				if (d3.event.defaultPrevented) {return;}
 				unselectCrane();
 				selectedCrane = d;
 				dlg.select(d);
@@ -536,7 +545,7 @@ angular.module('testYoApp')
 				s.classed('selected',false);
 				clearSelection();
 			});
-		};
+		}
 		 
 		function clearSelection() {
 			selectionEl.selectAll("*").remove();
@@ -557,7 +566,7 @@ angular.module('testYoApp')
 			.style('stroke','black')
 			.style('pointer-events','all')
 			.on('click',function(){
-				if(d3.event.defaultPrevented) return;
+				if(d3.event.defaultPrevented) {return;}
 				unselectCrane();
 			});
 		var content = svg.append('svg:g').attr('transform',function(){return 'translate(0,0)scale(1)';});
@@ -579,21 +588,12 @@ angular.module('testYoApp')
 			.attr('stroke-width',1)
 			.attr('stroke','black');
 		var selectionEl = content.append('svg:g').classed('selection',true);
-		var craneDecor = content.append('svg:g').classed('crane_decor',true);
 		var craneGroup = content.append('svg:g').classed('crane_group',true);
-		
-		var v = 0;
-		var td = 0;
-		var tr = 0;
-		var vr = 0;
-		 
-		var motionInfo = dlg.motionInfo || {};
-		
-		 
+				 
 		var interval;
 		 
 		function update(doInterval) {
-		 var craneEls = craneGroup.selectAll('.crane').data(cranes,function(d){return d['__'];});
+		 var craneEls = craneGroup.selectAll('.crane').data(cranes,function(d){return d.__;});
 		 //var radaiEl = craneDecor.selectAll('.crane_radius').data(cranes,function(d){return d['__'];});
 		 craneEls.exit().remove();
 		 //radaiEl.exit().remove();			 
@@ -609,49 +609,6 @@ angular.module('testYoApp')
 			 dlg.cranesTick(diff);
 			 update(true);
 			 return;
-			 for (var i = 0; i < cranes.length; ++i) {
-			 	var key = cranes[i]['__'];
-			 	var info = motionInfo[key];
-				var d = measurments[key].trolly_pos.latest.d;
-				if (d[0] > cranes[i].front_radius[0]) {
-					d[0] = cranes[i].front_radius[0];
-					info.v = -info.av;
-				} else if (d[0] < 0) {
-					d[0] = 0;
-					info.v = info.av;
-				}
-				if (d[0] > info.td) {
-					if (info.v > 0) {
-						info.td = info.nextTD();
-				 	}
-					info.v = -info.av;
-				} else {
-				 	if (info.v < 0) {
-					 	info.td = info.nextTD();
-				 	}
-					info.v = info.av;
-				}
-				d[0] = d[0] + info.v*diff;
-			 
-				d = measurments[key].rotation.latest.r;
-				var m = measurments[key].slew_speed.latest;
-				if (d[0] > info.tr) {
-					if (m[0] > 0) {
-				 		info.tr = info.nextTR();
-					}
-					m[0] = -info.avr;
-				} else {
-					if (m[0] < 0) {
-				 		info.tr = info.nextTR();
-					}
-					m[0] = info.avr;
-				}
-				d[0] = d[0] + m[0]*diff;
-				
-			 }
-			 
-			 
-			 update(true);
 		 },100,1);
 		}
 		 
@@ -677,21 +634,26 @@ angular.module('testYoApp')
 			showingBrake = t;
 		}
 		 
-		scope.$watch('dlg.$scope.showRadii',function(show) {
+		scope.$watch('dlg.$scope.showRadii',function() {
 			toggleRadii(dlg.$scope.showRadii);
 		});
-		scope.$watch('dlg.$scope.showBrake',function(show) {
+		scope.$watch('dlg.$scope.showBrake',function() {
 			toggleBrake(dlg.$scope.showBrake);
 		});
 		
 		function pulse() {
 			var vis = d3.select(this);
-			vis.transition().duration(500).attr('r',15).transition().duration(500).attr('r',10).each('end',function(d){if (d.state !== 0) pulse.call(this);});
+			vis.transition().duration(500)
+				.attr('r',15)
+				.transition()
+				.duration(500)
+					.attr('r',10)
+					.each('end',function(d){if (d.state !== 0) {pulse.call(this);}});
 		}
 		
-		scope.$watch('dlg.$scope.crane_state_changed',function(drop){
+		scope.$watch('dlg.$scope.crane_state_changed',function(){
 			var craneEls = craneGroup.selectAll('.crane');
-			craneEls.each(function(d,i){
+			craneEls.each(function(d){
 				var vis = d3.select(this);
 				var tp = measurments[d.__].trolly_pos.latest.d[0];
 				if (d.state === 0) {

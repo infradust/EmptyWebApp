@@ -91,7 +91,7 @@ angular.module('testYoApp')
 
 
 	function makeSvgBaseView(root,w,h) {
-		var svg = d3.select(root[0]).append('svg').attr('viewBox','0 0 ' + w + ' ' + h);
+		var svg = d3.select(root[0]).append('svg').attr('viewBox','0 0 ' + w + ' ' + h).attr({width:'100%',height:'100%'});
 		var defs = svg.append('defs');
 		var ctrlGroup = svg.append('g');
 		ctrlGroup.append('rect')

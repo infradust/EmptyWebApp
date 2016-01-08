@@ -55,13 +55,13 @@ angular.module('testYoApp')
 			},
 			icon:'crane_icon',
 			measurments: {
-				base_location:{type:inputTypes['p'],disp:'Base position',desc:'position of the base of the crane',guard:{type:'n',units:'length',val:[3,'m']}},
-				rotation:{type:inputTypes['r'],disp:'Rotation',desc:'Rotation of the crane',guard:{type:'n',units:'rotation',val:[3,'d']}},
-				anchor_pos:{type:inputTypes['p'],disp:'Anchor location',desc:'The location of the anchor',guard:{type:'n',units:'length',val:[1,'m']}},
-				trolly_pos:{type:inputTypes['d'],disp:'Trolly distance',desc:'The distance of the trolly on main jib'},
-				hook_block_height:{type:inputTypes['d'],disp:'Hook height',desc:'the distance of the hook from the jib'},
-				slew_speed:{type:inputTypes['r'],disp:'Current slew speed',desc:'The angular velocity of the jib[rad/sec]'},
-				load:{type:inputTypes['w'],disp:'Current load',desc:'The weight the crane is carrying'},
+				base_location:{type:inputTypes.p,disp:'Base position',desc:'position of the base of the crane',guard:{type:'n',units:'length',val:[3,'m']}},
+				rotation:{type:inputTypes.r,disp:'Rotation',desc:'Rotation of the crane',guard:{type:'n',units:'rotation',val:[3,'d']}},
+				anchor_pos:{type:inputTypes.p,disp:'Anchor location',desc:'The location of the anchor',guard:{type:'n',units:'length',val:[1,'m']}},
+				trolly_pos:{type:inputTypes.d,disp:'Trolly distance',desc:'The distance of the trolly on main jib'},
+				hook_block_height:{type:inputTypes.d,disp:'Hook height',desc:'the distance of the hook from the jib'},
+				slew_speed:{type:inputTypes.r,disp:'Current slew speed',desc:'The angular velocity of the jib[rad/sec]'},
+				load:{type:inputTypes.w,disp:'Current load',desc:'The weight the crane is carrying'},
 			},
 		},
 	 };
@@ -245,7 +245,7 @@ angular.module('testYoApp')
 	 
 	 var inventory = {
 		crane_01 : {
-			'_':kinds['c'],
+			'_':kinds.c,
 			'__':'crane_01',
 			name:'demo 1',
 			manufacturer:'craner',
@@ -262,7 +262,7 @@ angular.module('testYoApp')
 			state:0,
 		},
 		crane_02 : {
-			'_':kinds['c'],
+			'_':kinds.c,
 			'__':'crane_02',
 			name:'demo 2',
 			manufacturer:'stork',
@@ -279,7 +279,7 @@ angular.module('testYoApp')
 			state:0,
 		},
 		crane_03 : {
-			'_':kinds['c'],
+			'_':kinds.c,
 			'__':'crane_03',
 			name:'demo 3',
 			manufacturer:'pike',
@@ -296,7 +296,7 @@ angular.module('testYoApp')
 			state:0,
 		},
 		crane_04 : {
-			'_':kinds['c'],
+			'_':kinds.c,
 			'__':'crane_04',
 			name:'demo 4',
 			manufacturer:'pike',
@@ -313,7 +313,7 @@ angular.module('testYoApp')
 			state:0,
 		},
 		crane_05 : {
-			'_':kinds['c'],
+			'_':kinds.c,
 			'__':'crane_05',
 			name:'demo 5',
 			manufacturer:'pike',
@@ -334,9 +334,9 @@ angular.module('testYoApp')
 	 var timingStats = {
 	 	c: {
 		 	plateProcess : {
-				connect : {t:1*60,u:'s',desc:'Connection time',heightFunc:function(h){return 0;}},//connection time in seconds
+				connect : {t:1*60,u:'s',desc:'Connection time',heightFunc:function(){return 0;}},//connection time in seconds
 				travel : {t:(7*60),u:'s',desc:'Lift time',heightFunc:function(h){return 13*h;}},//plate place release in seconds
-				placeAndRelease : {t:(14*60),u:'s',desc:'Placement and release',heightFunc:function(h){return 0;}},//plate place release in seconds
+				placeAndRelease : {t:(14*60),u:'s',desc:'Placement and release',heightFunc:function(){return 0;}},//plate place release in seconds
 				sim:function(h,bias){
 					var conn = this.connect.t + this.connect.heightFunc(h) + (Math.random()-0.5)*2*10 + bias.connect*Math.random();
 					var trav = this.travel.t + this.travel.heightFunc(h) + (Math.random()-0.5)*2*2*60 + bias.travel*Math.random();
@@ -365,9 +365,9 @@ angular.module('testYoApp')
 				},
 			},
 			blockProcess: {
-				connect : {t:2*60,u:'s',desc:'Connection time',heightFunc:function(h){return 0;}},//connection time in seconds
+				connect : {t:2*60,u:'s',desc:'Connection time',heightFunc:function(){return 0;}},//connection time in seconds
 				travel : {t:(5*60),u:'s',desc:'Lift time',heightFunc:function(h){return 10*h;}},//plate place release in seconds
-				placeAndRelease : {t:(3*60),u:'s',desc:'Placement and release',heightFunc:function(h){return 0;}},//plate place release in seconds
+				placeAndRelease : {t:(3*60),u:'s',desc:'Placement and release',heightFunc:function(){return 0;}},//plate place release in seconds
 				sim:function(h,bias){
 					var conn = this.connect.t + this.connect.heightFunc(h) + (Math.random()-0.5)*2*20 + bias.connect*Math.random();
 					var trav = this.travel.t + this.travel.heightFunc(h) + (Math.random()-0.5)*2*2*60 + bias.travel*Math.random();
@@ -390,7 +390,7 @@ angular.module('testYoApp')
 						amount++;
 						count++;
 						nextH = h(count+1);
-						nextT = this.nextT(nexth);
+						nextT = this.nextT(nextH);
 					}
 					return amount;
 				},
@@ -462,7 +462,7 @@ angular.module('testYoApp')
 		if (res === undefined) {
 			var ts = timingStats.c;
 			var h = i*10; //day height [m]
-			var plates = maxAmount(0,function(i){return h;},12*60*60,[ts.reaquire,ts.plateProcess]);/* + (Math.random()-0.5)*2*3*/;//how many plates today
+			var plates = maxAmount(0,function(){return h;},12*60*60,[ts.reaquire,ts.plateProcess]);//how many plates today
 			plates = Math.floor(plates);
 			var connectionTime = plates*(ts.plateProcess.connect.t+ts.plateProcess.connect.heightFunc(h));
 			var travelTime = plates*(ts.plateProcess.travel.t+ts.plateProcess.travel.heightFunc(h));
@@ -550,7 +550,8 @@ angular.module('testYoApp')
 		var etplates = 0;
 		var mplates = 0;
 		var proj = {days:[]};
-		var ts = timingStats.c;
+		//var ts = timingStats.c;
+		var progress;
 		bias = bias || {};
 		bias.connect = bias.connect || 0;
 		bias.travel = bias.travel || 0;
@@ -558,7 +559,7 @@ angular.module('testYoApp')
 		bias.travelTime = bias.travelTime || 0;
 		for (var i = 0; i <days; ++i) {
 			var day = projectDay(i);
-			var progress = simulateDay(day.plates,bias,tplates,mplates);
+			progress = simulateDay(day.plates,bias,tplates,mplates);
 			tplates+=progress.total.plateProcess.plates;
 			etplates+=day.plates;
 			mplates = etplates-tplates;
@@ -567,7 +568,7 @@ angular.module('testYoApp')
 		console.log('done 1');
 		for(;tplates<projectExpectedSchedule.total.plates;) {
 			var diff = projectExpectedSchedule.total.plates-tplates;			
-			var progress = simulateDay(diff,bias,tplates,0);
+			progress = simulateDay(diff,bias,tplates,0);
 			tplates+=progress.total.plateProcess.plates;
 			proj.days.push(progress);
 		}
