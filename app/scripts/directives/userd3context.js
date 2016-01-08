@@ -16,7 +16,7 @@ angular.module('testYoApp')
       replace:true,
       scope:{dlg:'='},
       link: function postLink(scope, element, attrs) {
-        var dlg = scope.dlg || {};
+        //var dlg = scope.dlg || {};
         
 		var w = 1024;
 		var h = 1024;
@@ -25,9 +25,9 @@ angular.module('testYoApp')
         d3Utils.addZoomBaseView(svgObj,0.001,10);
         
         
-        var svg = svgObj.svg;
+        //var svg = svgObj.svg;
         var defs = svgObj.defs;
-        var ctrlGroup = svgObj.ctrlGroup;
+        //var ctrlGroup = svgObj.ctrlGroup;
         var content = svgObj.content;
         
         function addDef(kind,id,attrs,setup) {
@@ -46,7 +46,7 @@ angular.module('testYoApp')
 		addDef('symbol','pin',{viewBox:symbols.pin_small.viewBox},symbols.pin_small);
 		
 		var addChild = d3Utils.graph.addChild;
-		var link = d3Utils.graph.link;
+		//var link = d3Utils.graph.link;
 		
 		var D3Node = d3Utils.graph.d3node;
 		var D3Link = d3Utils.graph.d3link;
@@ -54,7 +54,7 @@ angular.module('testYoApp')
 		
 		
 		function node(backing,key) {
-			var n =  new D3Node({backing:backing,key:key})
+			var n =  new D3Node({backing:backing,key:key});
 			n.setup = circleSetup;
 			n.text = angular.noop;
 			n.x = Math.random()*500;
@@ -73,7 +73,7 @@ angular.module('testYoApp')
 		} 
 		
 		var user = userService.user;
-		var root = undefined;
+		var root;
 		
 		function circleSetup(s) {
 			s.append('circle').attr('r',5);				
@@ -81,7 +81,7 @@ angular.module('testYoApp')
 				s.append('text')
 					.attr('dy','.31em')
 					.attr('text-anchor','end')
-					.text(function(d){return d.text()});
+					.text(function(d){return d.text();});
 			}
 		}
 		
@@ -92,7 +92,7 @@ angular.module('testYoApp')
 				var t = s.append('text')
 					.attr('dy','.31em')
 					.attr('text-anchor','middle')
-					.text(function(d){return d.text()});
+					.text(function(d){return d.text();});
 				w = t.node().getComputedTextLength();
 			}
 			this.pinPoint = {x:-20,y:-20};
@@ -110,10 +110,10 @@ angular.module('testYoApp')
 			var g;
 			g = s.append('g')
 				.attr('transform','translate('+ (w/2-17) + ','+ (-5) +')')
-				.on('mouseenter',function(d){
+				.on('mouseenter',function(){
 					d3.select(this).select('use').style('fill','blue');
 				})
-				.on('mouseleave',function(d){
+				.on('mouseleave',function(){
 					d3.select(this).select('use').style('fill','darkgrey');
 				});
 			g.append('rect')
@@ -128,13 +128,13 @@ angular.module('testYoApp')
 				
 			g = s.append('g')
 				.attr('transform','translate('+ (w/2) + ','+ (-5) +')')
-				.on('mouseenter',function(d){
+				.on('mouseenter',function(){
 					d3.select(this).select('use').style('fill','blue');
 				})
-				.on('mouseleave',function(d){
+				.on('mouseleave',function(){
 					d3.select(this).select('use').style('fill','darkgrey');
 				})
-				.on('click',function(d){
+				.on('click',function(){
 					$state.go('home');
 				});
 			g.append('rect')
@@ -163,7 +163,7 @@ angular.module('testYoApp')
 			root.setup = function(s) {
 				this.pinPoint = {x:-60,y:-60};
 				s.append('image').attr('x',-50).attr('y',-50).attr('width',100).attr('height',100).attr('xlink:href','images/User-unknown.svg');
-			}
+			};
 			
 			var RACI = addChild(root,node(user.RACI,'RACI'));
 			RACI.setup = function(s){
@@ -173,7 +173,7 @@ angular.module('testYoApp')
 					.attr('dy','.31em')
 					.attr('text-anchor','middle')
 					.text('RACI');
-			}
+			};
 			
 			n = addChild(RACI,node(user.RACI.R,'R'));
 			n.setup = rectSetup;
@@ -233,13 +233,9 @@ angular.module('testYoApp')
 		
 		makeTree();
 		
-		var force = d3.layout.force()
-			.size([svgObj.width,svgObj.height])
-			.charge(-400)
-			.linkDistance(80)
-			.gravity(0)
-			.on('tick',tick);
-		
+		var lel = content.selectAll('.link');
+		var nel = content.selectAll('.node');
+
 		function tick() {
 			lel.attr("x1", function(d) { return d.source.x; })
 				.attr("y1", function(d) { return d.source.y; })
@@ -247,20 +243,23 @@ angular.module('testYoApp')
 				.attr("y2", function(d) { return d.target.y; });
 		
 			nel.attr('transform',function(d){return 'translate('+d.x+','+d.y+')';});
-
 		}
 
+		var force = d3.layout.force()
+			.size([svgObj.width,svgObj.height])
+			.charge(-400)
+			.linkDistance(80)
+			.gravity(0)
+			.on('tick',tick);
 		
-		var lel = content.selectAll('.link');
-		var nel = content.selectAll('.node');
 		
 		function unfixChildren(n) {
 			if (n.expanded) {
 				for (var i = 0; i< n.children.length; ++i) {
 					var c = n.children[i];
 					c.fixed = c.expanded;
-					if (d.fixed === false && d.$vis !== undefined) {
-						d.removePin();
+					if (c.fixed === false && c.$vis !== undefined) {
+						c.removePin();
 					}
 					unfixChildren(c);
 				}
@@ -289,10 +288,10 @@ angular.module('testYoApp')
 					.remove();
 			nel.enter().append('g')
 				.classed('node',true)
-				.each(function(d){d.$vis = d3.select(this); d.setup(d3.select(this)); if(d.fixed && d.parent !== undefined) d.appendPin();})
+				.each(function(d){d.$vis = d3.select(this); d.setup(d3.select(this)); if(d.fixed && d.parent !== undefined) {d.appendPin();}})
 				.call(force.drag)
 				.on('click',function(d){
-					if (d3.event.defaultPrevented) return;
+					if (d3.event.defaultPrevented) {return;}
 					d3.event.stopPropagation();
 					d.expanded = !d.expanded;
 					d.fixed = d.expanded || d.parent === undefined;

@@ -11,10 +11,6 @@ angular.module('testYoApp')
 	.service('d3Symbols', function () {
 	// AngularJS will instantiate a singleton by calling "new" on this function
     
-    this.pin = function(s) {
-	    
-    };
-    
     this.building = function (s) {			
     	s.append('path')
 			.attr('d',"M480,480V192H256V0H32v480H0v32h512v-32H480z M64,32h64v64H64V32z M64,128h64v64H64V128z M64,224h64v64H64V224z M64,320h64 v64H64V320z M192,480H96v-64h96V480z M224,384h-64v-64h64V384z M224,288h-64v-64h64V288z M224,192h-64v-64h64V192z M224,96h-64V32 h64V96z M288,224h64v64h-64V224z M288,320h64v64h-64V320z M416,480h-96v-64h96V480z M448,384h-64v-64h64V384z M448,288h-64v-64h64 V288z");

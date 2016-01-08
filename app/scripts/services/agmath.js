@@ -11,16 +11,17 @@ angular.module('testYoApp')
 	.service('AGMath', function () {
 		function polyline_to_nodes(polyline) {
 			var res = [];
+			var i,n;
 			var len = polyline.length;
-			for(var i = 0; i < len; ++i) {
+			for(i = 0; i < len; ++i) {
 				var d = polyline[i];
-				var n = {x:d[0],y:d[1]};
+				n = {x:d[0],y:d[1]};
 				res.push(n);
 			}
-			for(var i = 0; i < len; ++i) {
+			for(i = 0; i < len; ++i) {
 				var c = res[i];
 				var p = res[((i-1)+len)%len];//modulo "bug" in javascript for negative numbers
-				var n = res[(i+1)%len];
+				n = res[(i+1)%len];
 				c.p1=p;
 				c.p2=n;
 			}
@@ -30,15 +31,16 @@ angular.module('testYoApp')
 		function polypoint_to_nodes(polypoints) {
 			var res = [];
 			var len = polypoints.length;
-			for(var i = 0; i < len; ++i) {
+			var i,n;
+			for(i = 0; i < len; ++i) {
 				var d = polypoints[i];
-				var n = {x:d.x,y:d.y,key:i};
+				n = {x:d.x,y:d.y,key:i};
 				res.push(n);
 			}
-			for(var i = 0; i < len; ++i) {
+			for(i = 0; i < len; ++i) {
 				var c = res[i];
 				var p = res[((i-1)+len)%len];//modulo "bug" in javascript for negative numbers
-				var n = res[(i+1)%len];
+				n = res[(i+1)%len];
 				c.p1=p;
 				c.p2=n;
 			}
@@ -46,7 +48,7 @@ angular.module('testYoApp')
 		}
 		
 		function z_rotate_nodes(points,angle,center) {
-			center = center || [0,0]
+			center = center || [0,0];
 			var cosAng = Math.cos(angle);
 			var sinAng = Math.sin(angle);
 			points.forEach(function(d){
@@ -60,7 +62,6 @@ angular.module('testYoApp')
 		}
 
 		function facing_frame_x_proj(polyline) {
-			var vis = [];
 			var res = [];
 			var min,max;
 			min=max=polyline[0];
@@ -92,14 +93,15 @@ angular.module('testYoApp')
 			for (var i = 0; i <frame.length; ++i) {
 				var e = frame[i];
 				var busted = false;
-				for (var j = 0; j < i && !busted; ++j) {
-					var p = frame[j];
+				var j,p;
+				for (j = 0; j < i && !busted; ++j) {
+					p = frame[j];
 					if (p.x > e.x && p.y > e.y) {
 						busted = true;
 					}
 				}
-				for (var j = i+i; j < frame.length && !busted; ++j) {
-					var p = frame[j];
+				for (j = i+i; j < frame.length && !busted; ++j) {
+					p = frame[j];
 					if (p.x > e.x && p.y < e.y) {
 						busted = true;
 					}

@@ -7,6 +7,7 @@
  * # d3Utils
  * Service in the testYoApp.
  */
+(function(DS,d3,angular){
 angular.module('testYoApp')
   .service('d3Utils', function () {
     // Service logic
@@ -63,12 +64,13 @@ angular.module('testYoApp')
 			};
 			p.reachableLinks = function(arr) {
 				var res = arr || [];
+				var i;
 				if (this.expanded) {
-					for (var i = 0; i < this.children.length; ++i) {
+					for (i = 0; i < this.children.length; ++i) {
 						var c = this.children[i];
 						res.push(new ns.D3Link(this,c,c.$key));
 					}
-					for (var i = 0; i < this.children.length; ++i) {
+					for (i = 0; i < this.children.length; ++i) {
 						this.children[i].reachableLinks(res);
 					}					
 				}
@@ -135,3 +137,5 @@ angular.module('testYoApp')
 	this.graph = {node:node,link:link,addChild:addChild,d3node:ns.D3Node,d3link:ns.D3Link};
     
   });
+
+})(DS,d3,angular);
