@@ -16,7 +16,7 @@ angular.module('testYoApp')
       link: function postLink(scope, element, attrs) {
       	var dlg = scope.dlg;
 		var root = d3.select(element[0]);
-		var margin = {top:30,right:20,bottom:30,left:60};
+		var margin = {top:50,right:20,bottom:10,left:60};
 		var w = 900;
 		var h = 300;
 		var w_margin = w+margin.left+margin.right;
@@ -77,7 +77,10 @@ angular.module('testYoApp')
 			content.append("g")
 				.attr("class", "x_axis")
 				.attr("transform", "translate(0," + (margin.top) + ")")
-				.call(xAxis);
+				.call(xAxis)
+				.selectAll('text')
+					.style('text-anchor','end')
+					.attr({dx:'-.8em',dy:'.15em',transform:'rotate(40)'});
 			
 			var bars = content.selectAll(".bar")
 				.data(data)

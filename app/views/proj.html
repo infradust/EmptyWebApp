@@ -6,17 +6,17 @@
 				<button type="button" class="btn btn-default" ng-click="changeDay()">Day:&nbsp{{day+1}}</button>
 			</div>
 		</div>
-		<div class="col-md-11">
-			<div class="container-full" style="height:640px;">
-				<div class="row">
-					<div class="col-md-12">
-						<proj-d3-demo dlg="visDlg"></proj-d3-demo>
-					</div>
+		<div class="col-md-5">
+			<div class="row">
+				<div class="col-md-12">
+					<proj-d3-demo dlg="visDlg" style="max-height:450px;overflow:hidden;"></proj-d3-demo>
 				</div>
-				<div class="row">
-					<div class="col-md-12">
-						<proj-d3-stats dlg="visDlg"></proj-d3-stats>
-					</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="row">
+				<div class="col-md-12">
+					<proj-d3-stats dlg="visDlg" style="max-height:450px;overflow:hidden;"></proj-d3-stats>
 				</div>
 			</div>
 		</div>

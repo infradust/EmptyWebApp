@@ -7,7 +7,7 @@
  * # projD3Stats
  */
 angular.module('testYoApp')
-  .directive('projD3Stats', ['demoData',function (demoData) {
+  .directive('projD3Stats', ['demoData','$filter',function (demoData,$filter) {
     return {
       template: '<div></div>',
       restrict: 'E',
@@ -159,7 +159,9 @@ angular.module('testYoApp')
 					.attr('width',x_group.rangeBand()/4)
 					.attr('y',function(d){return y(d.y1);})
 					.attr('height',function(d){return y(d.y0)-y(d.y1);})
-					.attr('fill',function(d){return color[d.k][0];});
+					.attr('fill',function(d){return color[d.k][0];})
+					.on('mouseover',function(d){var m = d3.mouse(this);d3.select(this.parentNode).append('text').classed('dump',true).attr({x:x_comp(d.d)+x_group.rangeBand()/4,y:y(d.y0)-2}).text(''+($filter('fixed2')(d.y1-d.y0))+'[min]');})
+					.on('mouseout',function(d){d3.select(this.parentNode).select('.dump').remove();});
 			event.append('text').attr('x',function(d){return x_comp(d.d);}).attr('y',function(d){return y(d.stack[d.stack.length-1].y1)-5;}).text(function(d){return ''+d.d;});
 			
 			 var legend = content.selectAll(".legend")
