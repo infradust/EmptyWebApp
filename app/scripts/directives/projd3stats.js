@@ -153,22 +153,30 @@ angular.module('testYoApp')
 					.classed('event',true)
 					.attr('transform',function(d){return 'translate('+x_group(d.k)+',0)';});
 			
-			event.selectAll('rect').data(function(d){return d.stack;})
-				.enter().append('rect')
-					.attr('x',function(d){return x_comp(d.d);})
-					.attr('width',x_group.rangeBand()/4)
-					.attr('y',function(d){return y(d.y1);})
-					.attr('height',function(d){return y(d.y0)-y(d.y1);})
-					.attr('fill',function(d){return color[d.k][0];})
-					.on('mouseover',function(d){
-						var m = d3.mouse(this);
-						d3.select(this.parentNode).append('text')
-							.classed('dump',true)
-							.attr({x:x_comp(d.d)+x_group.rangeBand()/8,y:y(d.y0)-2,'text-anchor':'middle'})
-							.text(''+($filter('fixed2')(d.y1-d.y0))+'[min]');})
-					.on('mouseout',function(d){
-						d3.select(this.parentNode).select('.dump').remove();});
-			event.append('text').attr('x',function(d){return x_comp(d.d);}).attr('y',function(d){return y(d.stack[d.stack.length-1].y1)-5;}).text(function(d){return ''+d.d;});
+			var b = event.selectAll('.bar').data(function(d){return d.stack;})
+				.enter().append('g')
+					.attr({
+						class:'bar',
+						transform:function(d){return 'translate(' + x_comp(d.d) + ','+y(d.y1)+')';},
+					});
+			b.append('rect')
+				.attr({
+						width:x_group.rangeBand()/4,
+						height:function(d){return y(d.y0)-y(d.y1);},
+						fill:function(d){return color[d.k][0];},
+				});
+			b.append('text')
+				.attr({
+					x:x_group.rangeBand()/8,
+					y:function(d){return y(d.y0)-y(d.y1)-2;},
+					'text-anchor':'middle',
+				})
+				.text(function(d){return ($filter('fixed2')(d.y1-d.y0))+'[min]';});
+			
+			event.append('text')
+				.attr('x',function(d){return x_comp(d.d);})
+				.attr('y',function(d){return y(d.stack[d.stack.length-1].y1)-5;})
+				.text(function(d){return ''+d.d;});
 			
 			 var legend = content.selectAll(".legend")
 			 .data(Object.keys(color))
