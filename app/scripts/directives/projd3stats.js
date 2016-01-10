@@ -170,6 +170,7 @@ angular.module('testYoApp')
 					x:x_group.rangeBand()/8,
 					y:function(d){return y(d.y0)-y(d.y1)-2;},
 					'text-anchor':'middle',
+					'font-size':function(d){return Math.min(15, y(d.y0)-y(d.y1)-2);},
 				})
 				.text(function(d){return ($filter('fixed2')(d.y1-d.y0))+'[min]';});
 			
