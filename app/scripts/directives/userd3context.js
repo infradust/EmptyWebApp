@@ -85,8 +85,41 @@ angular.module('testYoApp')
 			}
 		}
 		
+		var severityMap = {i:[0,'green'],w:[1,'orange'],c:[2,'red']};
+		
+		function severityColor (d) {
+			return severityMap[d.key][1];
+		}
+		
+		function severityVal (d) {
+			return severityMap[d.key][0];
+		}
+		
+		function capsulePath (startX,startY,radius,width,height) {
+			var h = 'a'+radius+','+radius+' 0 0,0 0,';
+			var p = 'M'+startX+','+startY+h+(height) + 'l'+(width)+',0'+h+(-height)+'Z';
+			return p;
+		}
+		
+		function numericCapsule(x,y,n,s,height,textAttr,pathAttr) {
+			textAttr = textAttr || {};
+			pathAttr = pathAttr || {};
+			var p = s.append('path');
+			var t = s.append('text')
+				.attr({
+					'font-size':height,
+					x:x,
+					y:y+0.85*height,
+					'text-anchor':'start',
+					})
+				.attr(textAttr)
+				.text(n);
+			var w = t.node().getComputedTextLength();
+			p.attr('d',capsulePath(x,y,height/2,w,height)).attr('fill','none').attr('stroke','black').attr('stroke-width',0.5).attr(pathAttr);
+		}
+		
 		function rectSetup(s) {
-			var rect = s.append('rect').attr({x:-10,y:-10});
+			var rect = s.append('rect');//.attr({x:-10,y:-10});
 			var w =20,h=20;
 			if (this.text !== angular.noop) {			
 				var t = s.append('text')
@@ -96,7 +129,22 @@ angular.module('testYoApp')
 				w = t.node().getComputedTextLength();
 			}
 			this.pinPoint = {x:-20,y:-20};
-			rect.attr('width',8+w+8).attr('height',h);
+			rect.attr({width:8+w+8,height:h,x:-(8+w/2),y:-10});
+
+			var dt = d3.entries(s.datum().inf).filter(function(d){return d.value && d.value !== 0;}).sort(function(a,b){ return severityVal(b) - severityVal(a);});
+			dt.forEach(function(d,i){d.i = i;});
+			var notes = s.selectAll('.notes').data(dt,function(d){return d.key;});
+			var gs = notes.enter().append('g')
+				.classed('notes',true)
+				.each(function(d){ 
+					numericCapsule(w/2+13,d.i*6-10,d.value,d3.select(this),5,{},{fill:severityColor(d)});
+				});
+/*
+			notes.enter().append('path').attr('d',capsulePath(100,100,5,50,20)).attr('fill','none').attr('stroke','black').attr('stroke-width',1);
+			notes.enter().append('circle')
+				.attr({cx:6+w+7,cy:function(d,i){return i*10;},r:7,fill:severityColor});
+*/
+
 		}
 		
 		function prjSetup(s) {
@@ -115,6 +163,8 @@ angular.module('testYoApp')
 				})
 				.on('mouseleave',function(){
 					d3.select(this).select('use').style('fill','darkgrey');
+				}).on('click',function(){
+					$state.go('proj');
 				});
 			g.append('rect')
 				.attr({width:15,height:15,stroke:'none','stroke-width':0})
@@ -166,6 +216,17 @@ angular.module('testYoApp')
 			};
 			
 			var RACI = addChild(root,node(user.RACI,'RACI'));
+			RACI.setup = rectSetup;
+			RACI.text = function(){return 'RACI';};
+			var inf = {w:0,i:0,c:0};
+			for (var k in user.RACI) {
+				var l = user.RACI[k];
+				for (var m in user.RACI[k]) {
+					inf[m] += l[m];
+				}
+			}
+			RACI.inf = inf;
+/*
 			RACI.setup = function(s){
 				this.pinPoint = {x:-30,y:-20};
 				s.append('rect').attr('width',40).attr('height',20).attr('x',-20).attr('y',-10);
@@ -174,22 +235,27 @@ angular.module('testYoApp')
 					.attr('text-anchor','middle')
 					.text('RACI');
 			};
+*/
 			
 			n = addChild(RACI,node(user.RACI.R,'R'));
 			n.setup = rectSetup;
 			n.text = function(){return 'R';};
+			n.inf = n.$backing;
 			
 			n = addChild(RACI,node(user.RACI.A,'A'));
 			n.setup = rectSetup;
 			n.text = function(){return 'A';};
+			n.inf = n.$backing;
 			
 			n = addChild(RACI,node(user.RACI.C,'C'));
 			n.setup = rectSetup;
 			n.text = function(){return 'C';};
+			n.inf = n.$backing;
 			
 			n = addChild(RACI,node(user.RACI.I,'I'));
 			n.setup = rectSetup;
 			n.text = function(){return 'I';};
+			n.inf = n.$backing;
 			
 			n = addChild(root,node(user.projects,'projects'));
 			n.setup = function(s){

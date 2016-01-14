@@ -16,6 +16,6 @@ angular.module('testYoApp')
 	    email:'demomail@axongo.com',
 	    company:{'__':'vn',name:'Versitile Natures',logo:''},
 	    projects:[demoData.projects.p1,demoData.projects.p2],
-	    RACI:{R:{},A:{},C:{},I:{}}
+	    RACI:{R:{w:0,i:7,c:2},A:{w:2,i:7,c:0},C:{w:2,i:7,c:0},I:{w:2,i:7,c:0}},
     };
   }]);
