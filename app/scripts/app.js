@@ -24,13 +24,13 @@ angular
   	
   	$stateProvider
   		.state('home', {
-	  		url:'/',
+	  		url:'/home',
 	  		templateUrl:'views/main.html',
 	  		controller:'MainCtrl',
 	  		controllerAs:'main',
   		})
   		.state('user',{
-	  		url:'/user',
+	  		url:'/',
 	  		templateUrl:'views/user.html',
 	  		controller:'UserCtrl',
 	  		controllerAs:'ctrl',	  		
