@@ -114,6 +114,7 @@ angular.module('testYoApp')
 			};
 			p.action = function(dt){
 				this.tPos[0] += (this.velocity*dt);
+				this.crane.heatMap.move.sample();
 				if ( (this.velocity > 0 && this.tPos[0] > this.targetPos) ||
 					 (this.velocity < 0 && this.tPos[0] < this.targetPos) ) {
 					this.tPos[0] = this.targetPos;
@@ -195,6 +196,7 @@ angular.module('testYoApp')
 			};
 			p.action = function (dt){
 				this.rotation[0] += (this.velocity*dt);
+				this.crane.heatMap.move.sample();
 				if ( (this.velocity > 0 && this.rotation[0] > this.targetRotation) ||
 					 (this.velocity < 0 && this.rotation[0] < this.targetRotation) ) {
 					this.rotation[0] = this.targetRotation;
@@ -261,6 +263,7 @@ angular.module('testYoApp')
 				onDone:function(){
 					this.m.load.latest.d[0] = Math.floor(Math.random()*this.crane.max_load[0]*1000);
 					this.m.load.latest.c = loads[Math.floor(Math.random()*loads.length)];
+					this.crane.heatMap.lift.sample();
 					//console.log('loading done!');
 				}
 			}));
@@ -296,6 +299,7 @@ angular.module('testYoApp')
 				onDone:function(){
 					this.m.load.latest.d[0] = 0;
 					this.m.load.latest.c = undefined;
+					this.crane.heatMap.lower.sample();
 					//console.log('UNloading done!');
 				}
 			}));
@@ -437,21 +441,8 @@ angular.module('testYoApp')
   	kpiTree();
   	
   	$scope.kpiRoot = root;
-  	
-/*
-  	$scope.kpis = [
-  		{grade:50,$key:'s',desc:'Safety'},
-  		{grade:20,$key:'e',desc:'Efficiency'},
-  		{grade:100,$key:'d',desc:'Cost'}];
-*/
-  	
-  	setInterval(function(){
-/*
-	  	var i = Math.floor(Math.random()*$scope.kpis.length);
-	  	$scope.kpis[i].grade = Math.floor(Math.random()*101);
-	  	$scope.kpis = $scope.kpis.slice();
-*/
-	  	
+  	  	
+  	setInterval(function(){	  	
 	  	var i = Math.floor(Math.random()*leafKPI.length);
 	  	leafKPI[i].grade(Math.floor(Math.random()*101));
 		$scope.$broadcast('kpi.change',{kpi:leafKPI[i]});	  	
@@ -467,6 +458,10 @@ angular.module('testYoApp')
 		Sack:'images/bulk-bag.jpeg',
 	};
 
+	$scope.heatDlg = this;
+	$scope.heatMap = undefined;
+	this.mapUpdated = 0;
+
     $scope.sideDlg= $scope.visDlg = this;
     $scope.spotDlg = this;
     this.$scope = $scope;
@@ -474,6 +469,12 @@ angular.module('testYoApp')
     
 	var inventory = demoData.inventory;
 	var cranes = this.cranes = [inventory['crane_01'],inventory['crane_02'],inventory['crane_03'],inventory['crane_04'],inventory['crane_05']];
+	cranes.forEach(function(d){
+		var w = d.heatMap.w = 40; 
+		d.heatMap.move = new demoData.CraneGrid(d,w);
+		d.heatMap.lift = new demoData.CraneGrid(d,w);
+		d.heatMap.lower = new demoData.CraneGrid(d,w);
+	});
 	var frame = this.frame = demoData.projects.p1.frame;
 	var measurments = demoData.measurments;
 	var project = this.project = demoData.projects.p1;
@@ -502,14 +503,15 @@ angular.module('testYoApp')
 			}
 			tsk.step(dt);
 		}
-
+		
 		self.cranesChanged = true;
 		tickCounter++;
-		if (tickCounter == 10) {
+		if (tickCounter == 100) {
 			tickCounter = 0;
 		} else {
 			return;
 		}
+		self.mapUpdated++;
 		
 		var t = this.sweetspotData.Speed;
 		t.g += (Math.random()-0.5)*0.02;
@@ -546,6 +548,7 @@ angular.module('testYoApp')
 		$scope.hook_height = $scope.ms[d.__].hook_block_height.latest.d;
 		$scope.crane_state = d.state;
 		$scope.crane_load = $scope.ms[d.__].load.latest;
+		$scope.heatMap = d.heatMap;
 		this.sweetspotData.Speed.g = Math.random();
 		this.sweetspotData.Path.g = Math.random();
 		this.sweetspotData.Safety.g = Math.random();

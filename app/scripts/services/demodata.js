@@ -243,6 +243,76 @@ angular.module('testYoApp')
 	
 	 };
 	 
+	 var incM = [
+	 	0.25, 0.25,0.25,
+	 	0.25, 1   ,0.25,
+	 	0.25, 0.25,0.25];
+	 	
+	 function CraneGrid(crane,w){
+		 this.w = w;
+		 this.crane = crane;
+
+		 //private
+		 var max = 0;
+		 var r = crane.front_radius[0];
+		 var arr = [];
+		 var cBase = measurments[crane.__].base_location.latest;
+		 var rot = measurments[crane.__].rotation.latest;
+		 var trolly = measurments[crane.__].trolly_pos.latest;
+		 var scale = d3.scale.quantize()
+		 				.domain([-r,r])
+		 				.range(d3.range(w));
+		 
+		 for (var ww = w;ww>0;--ww) {
+			 for (var h = w;h>0;--h) {
+				 arr.push(0);
+			 }
+		 }
+		 this.values = arr;
+		 this.valueAt = function (i,j) {
+			 return arr[i*w+j];
+		 };
+		 
+		 function _inc(i,v) {
+			 arr[i] += v;
+			 if (arr[i] > max) {
+				 max = arr[i];
+			 }
+		 }
+		 
+		 this.max = function () {
+			 return max;
+		 };
+		 
+		 this.inc = function(i,j,v) {
+		 	var i0 = [(i-1)*w,i*w,(i+1)*w];
+		 	var j0 = [j-1,j,j+1];
+		 	i0.forEach(function(d,k,kk){
+			 	if (d < 0 || d>=w*w) {
+				 	return;
+			 	}
+			 	j0.forEach(function(m,l){
+				 	if (m < 0 || m >= w) {
+					 	return;
+				 	}
+				 	_inc(d+m,v*incM[k*3+l]);
+			 	});
+		 	});
+		 };
+		 
+		 this.normPos = function(pos) {
+			 return [(pos[0]-cBase.x[0])/r,(pos[1]-cBase.y[0])/r];
+		 };
+		 
+		 this.sample = function () {
+			 var r = rot.r[0];
+			 var t = trolly.d[0];
+			 var i = scale(t*Math.cos(r));
+			 var j = scale(t*Math.sin(r));
+			 this.inc(i,j,1.0);
+		 };
+	 }
+	 
 	 var inventory = {
 		crane_01 : {
 			'_':kinds.c,
@@ -260,6 +330,7 @@ angular.module('testYoApp')
 			max_slew_speed:[0.6,'rpm'],
 			break_speed:[0.35,'rpm'],
 			state:0,
+			heatMap:{},
 		},
 		crane_02 : {
 			'_':kinds.c,
@@ -277,6 +348,7 @@ angular.module('testYoApp')
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.3,'rpm'],
 			state:0,
+			heatMap:{},
 		},
 		crane_03 : {
 			'_':kinds.c,
@@ -294,6 +366,7 @@ angular.module('testYoApp')
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.2,'rpm'],
 			state:0,
+			heatMap:{},
 		},
 		crane_04 : {
 			'_':kinds.c,
@@ -311,6 +384,7 @@ angular.module('testYoApp')
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.1,'rpm'],
 			state:0,
+			heatMap:{},
 		},
 		crane_05 : {
 			'_':kinds.c,
@@ -328,6 +402,7 @@ angular.module('testYoApp')
 			max_slew_speed:[0.8,'rpm'],
 			break_speed:[0.4,'rpm'],
 			state:0,
+			heatMap:{},
 		},
 	 };
 	 
@@ -619,4 +694,5 @@ angular.module('testYoApp')
 			playground:undefined,
 		 },
 	 };
+	 this.CraneGrid = CraneGrid;
 });
