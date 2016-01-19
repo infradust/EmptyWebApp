@@ -25,8 +25,8 @@ angular.module('testYoApp')
 				});
 				
 				//var lst = scope.lst = scope.lst || [];
-				var w = element[0].parentElement.offsetWidth,
-					h=element[0].parentElement.offsetHeight;
+				var w = element[0].parentElement.offsetWidth+300,
+					h=element[0].parentElement.offsetHeight+100;
 				var svgObj = d3Utils.baseSvg(element,w,h);
 				svgObj.ctrlGroup.remove();
 				
@@ -88,7 +88,15 @@ angular.module('testYoApp')
 						.duration(animWidthDur2)
 						.attr('width',x(root.grade()))
 						.attr('fill',gradeColor(root.grade()));
-					kpiRoot.select('text').attr({dy:ry,'font-size':ry}).text(function(d){return d.desc;});
+					var rr = kpiRoot.select('text').attr({dy:ry,'font-size':ry}).text(function(d){return d.desc;});
+					rr.attr('font-size',function(d){ 
+						var r = ry;
+						if (w < this.getComputedTextLength()) {
+							r = r*(w/this.getComputedTextLength());
+						}
+						return r;
+						return Math.min(w,this.getComputedTextLength());
+					});
 					
 					
 					//lst.sort(function(a,b){return b.grade - a.grade;});
@@ -118,7 +126,15 @@ angular.module('testYoApp')
 							});
 					e.append('rect')
 						.attr({width:x(0),height:y.rangeBand(),fill:gradeColor(0),stroke:'none'});
-					e.append('text').attr(textU).text(function(d){return d.desc;});
+					var tt = e.append('text').attr(textU).text(function(d){return d.desc;});
+					tt.attr('font-size',function(d){ 
+						var r = ty;
+						if (w < this.getComputedTextLength()) {
+							r = r*(w/this.getComputedTextLength());
+						}
+						return r;
+					});
+					
 								
 					kpis.sort(function(a,b){return b.grade() - a.grade();});
 					kpis.transition().duration(function(d,i){return 90*i;}).attr('transform',function(d,i){return 'translate(0,'+y(i)+')';});

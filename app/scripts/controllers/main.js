@@ -262,6 +262,7 @@ angular.module('testYoApp')
 				type:'',
 				onDone:function(){
 					this.m.load.latest.d[0] = Math.floor(Math.random()*this.crane.max_load[0]*1000);
+					this.crane.stats.loaded += this.m.load.latest.d[0];
 					this.m.load.latest.c = loads[Math.floor(Math.random()*loads.length)];
 					this.crane.heatMap.lift.sample();
 					//console.log('loading done!');
@@ -297,6 +298,7 @@ angular.module('testYoApp')
 				time:Math.random()*5,
 				type:'',
 				onDone:function(){
+					this.crane.stats.delivered += this.m.load.latest.d[0];
 					this.m.load.latest.d[0] = 0;
 					this.m.load.latest.c = undefined;
 					this.crane.heatMap.lower.sample();
@@ -470,10 +472,13 @@ angular.module('testYoApp')
 	var inventory = demoData.inventory;
 	var cranes = this.cranes = [inventory['crane_01'],inventory['crane_02'],inventory['crane_03'],inventory['crane_04'],inventory['crane_05']];
 	cranes.forEach(function(d){
-		var w = d.heatMap.w = 40; 
-		d.heatMap.move = new demoData.CraneGrid(d,w);
-		d.heatMap.lift = new demoData.CraneGrid(d,w);
-		d.heatMap.lower = new demoData.CraneGrid(d,w);
+		if (d.heatMap === undefined) {
+			d.heatMap = {};
+			var w = d.heatMap.w = 40; 
+			d.heatMap.move = new demoData.CraneGrid(d,w);
+			d.heatMap.lift = new demoData.CraneGrid(d,w);
+			d.heatMap.lower = new demoData.CraneGrid(d,w);
+		}
 	});
 	var frame = this.frame = demoData.projects.p1.frame;
 	var measurments = demoData.measurments;

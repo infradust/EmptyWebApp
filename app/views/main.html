@@ -32,38 +32,38 @@
 			<form class="form-horizontal" accept-charset="UTF-8">
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Name:</label>
-					<div class="col-sm-8 col-sm-pad">
+					<div class="col-sm-8 col-sm-pad fit_font">
 						<p class="form-controll-static">{{selected.name}}</p>
 					</div>
 				</div>
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Dimensions:</label>
 					<div class="col-sm-8 col-sm-pad fit_font">
-						<p class="form-controll-static">Height:&nbsp{{selected.height[0]}}[{{selected.height[1]}}],&nbspFront&nbspjib:&nbsp{{selected.front_radius[0]}}[{{selected.front_radius[1]}}],Rear&nbspjib:&nbsp{{selected.back_radius[0]}}[{{selected.back_radius[1]}}]</p>
+						<p class="form-controll-static">Height:&nbsp{{selected.height[0]}}[{{selected.height[1]}}],&nbspFront:&nbsp{{selected.front_radius[0]}}[{{selected.front_radius[1]}}],Rear:&nbsp{{selected.back_radius[0]}}[{{selected.back_radius[1]}}]</p>
 					</div>
 				</div>
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Base:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{base_x[0].toFixed(2)}}['m'],{{base_y[0].toFixed(2)}}['m'],{{base_z[0].toFixed(2)}}['m']</p>
+					<div class="col-sm-8 col-sm-pad fit_font">
+						<p class="form-controll-static">{{base_x[0].toFixed(2)}}[m],{{base_y[0].toFixed(2)}}[m],{{base_z[0].toFixed(2)}}[m]</p>
 					</div>
 				</div>
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Angle:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{angle[0] | radToDeg | fixed2}}['deg']</p>
+					<div class="col-sm-8 col-sm-pad fit_font">
+						<p class="form-controll-static">{{angle[0] | radToDeg | fixed2}}[deg]</p>
 					</div>
 				</div>
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Hook height:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{hook_height[0] | fixed2}}['m']</p>
+					<div class="col-sm-8 col-sm-pad fit_font">
+						<p class="form-controll-static">{{hook_height[0] | fixed2}}[m]</p>
 					</div>
 				</div>
 				<div class="form-group-sm">
 					<label class="col-sm-4 control-label col-sm-pad">Load:</label>
-					<div class="col-sm-8 col-sm-pad">
-						<p class="form-controll-static">{{crane_load.d[0] | fixed2}}['kg']<img ng-if="crane_load.c" ng-src="{{loadImages[crane_load.c]}}" width="100" height="100"/></p>
+					<div class="col-sm-8 col-sm-pad fit_font">
+						<p class="form-controll-static">{{crane_load.d[0] | fixed2}}[kg]<img ng-if="crane_load.c" ng-src="{{loadImages[crane_load.c]}}" width="50" height="50"/></p>
 					</div>
 				</div>
 			</form>

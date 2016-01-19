@@ -330,7 +330,8 @@ angular.module('testYoApp')
 			max_slew_speed:[0.6,'rpm'],
 			break_speed:[0.35,'rpm'],
 			state:0,
-			heatMap:{},
+			heatMap:undefined,
+			stats:{drops:0,loaded:0,dropped:0,delivered:0,types:{}},
 		},
 		crane_02 : {
 			'_':kinds.c,
@@ -348,7 +349,8 @@ angular.module('testYoApp')
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.3,'rpm'],
 			state:0,
-			heatMap:{},
+			heatMap:undefined,
+			stats:{drops:0,loaded:0,dropped:0,delivered:0,types:{}},
 		},
 		crane_03 : {
 			'_':kinds.c,
@@ -366,7 +368,8 @@ angular.module('testYoApp')
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.2,'rpm'],
 			state:0,
-			heatMap:{},
+			heatMap:undefined,
+			stats:{drops:0,loaded:0,dropped:0,delivered:0,types:{}},
 		},
 		crane_04 : {
 			'_':kinds.c,
@@ -384,7 +387,8 @@ angular.module('testYoApp')
 			max_slew_speed:[0.7,'rpm'],
 			break_speed:[0.1,'rpm'],
 			state:0,
-			heatMap:{},
+			heatMap:undefined,
+			stats:{drops:0,loaded:0,dropped:0,delivered:0,types:{}},
 		},
 		crane_05 : {
 			'_':kinds.c,
@@ -402,7 +406,8 @@ angular.module('testYoApp')
 			max_slew_speed:[0.8,'rpm'],
 			break_speed:[0.4,'rpm'],
 			state:0,
-			heatMap:{},
+			heatMap:undefined,
+			stats:{drops:0,loaded:0,dropped:0,delivered:0,types:{}},
 		},
 	 };
 	 
